@@ -1,0 +1,55 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --c-primary: #2f5d4a;
+  --c-primary-soft: #3d7a62;
+  --c-accent: #c4a35a;
+  --c-surface: #f3e6d0;
+  --c-surface-paper: #faf6ee;
+  --c-surface-folder: #e8d5b5;
+  --c-surface-note: #fff3b0;
+  --c-surface-id: #dfeaf5;
+  --c-text: #3b2f2a;
+  --c-text-muted: #7a6a5c;
+  --c-border: #c4a882;
+  --c-stamina: #5a9e6f;
+  --c-charm: #d07a9a;
+  --c-intel: #5a8ec4;
+  --c-phys: #d0894a;
+  --c-heart: #c45c6a;
+  --font-ui: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --shadow-paper: 0 3px 10px rgba(40, 28, 18, 0.16);
+}
+
+html,
+body {
+  background: transparent;
+  color: var(--c-text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,617 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "世界": {
+      "default": {
+        "主线": "大学线",
+        "家里线子路线": "无",
+        "专业": "未定通识",
+        "开局描述摘要": "",
+        "日期": "9/1",
+        "星期": "周一",
+        "时段": "上午",
+        "时刻": "08:00",
+        "季节": "秋",
+        "天气": "晴",
+        "学期阶段": "秋季学期",
+        "当前区域": "大学城",
+        "当前地点": "宿舍",
+        "今日状况": ""
+      },
+      "type": "object",
+      "properties": {
+        "主线": {
+          "default": "大学线",
+          "type": "string",
+          "enum": [
+            "家里线",
+            "大学线",
+            "自定义"
+          ]
+        },
+        "家里线子路线": {
+          "default": "无",
+          "type": "string",
+          "enum": [
+            "社区学院",
+            "工作",
+            "无"
+          ]
+        },
+        "专业": {
+          "default": "未定通识",
+          "type": "string"
+        },
+        "开局描述摘要": {
+          "default": "",
+          "type": "string"
+        },
+        "日期": {
+          "default": "9/1",
+          "type": "string"
+        },
+        "星期": {
+          "default": "周一",
+          "type": "string",
+          "enum": [
+            "周一",
+            "周二",
+            "周三",
+            "周四",
+            "周五",
+            "周六",
+            "周日"
+          ]
+        },
+        "时段": {
+          "default": "上午",
+          "type": "string",
+          "enum": [
+            "清晨",
+            "上午",
+            "中午",
+            "下午",
+            "傍晚",
+            "晚上",
+            "深夜"
+          ]
+        },
+        "时刻": {
+          "default": "08:00",
+          "type": "string"
+        },
+        "季节": {
+          "default": "秋",
+          "type": "string",
+          "enum": [
+            "春",
+            "夏",
+            "秋",
+            "冬"
+          ]
+        },
+        "天气": {
+          "default": "晴",
+          "type": "string",
+          "enum": [
+            "晴",
+            "多云",
+            "阴",
+            "小雨",
+            "暴雨",
+            "小雪",
+            "大雪",
+            "雾",
+            "大风"
+          ]
+        },
+        "学期阶段": {
+          "default": "秋季学期",
+          "type": "string",
+          "enum": [
+            "秋季学期",
+            "期中周",
+            "期末周",
+            "感恩节假",
+            "寒假",
+            "春季学期",
+            "春假",
+            "暑假",
+            "自定义假期"
+          ]
+        },
+        "当前区域": {
+          "default": "大学城",
+          "type": "string",
+          "enum": [
+            "家附近",
+            "大学城",
+            "外出",
+            "远行",
+            "旅途"
+          ]
+        },
+        "当前地点": {
+          "default": "宿舍",
+          "type": "string"
+        },
+        "今日状况": {
+          "default": "",
+          "type": "string"
+        }
+      }
+    },
+    "主角": {
+      "default": {
+        "姓名": "Marcus",
+        "年龄": 18,
+        "身高": "5'10\"",
+        "体型": "正常",
+        "体型备注": "",
+        "外貌": "",
+        "爱好": [],
+        "喜欢的类型": "",
+        "性格": "",
+        "自述": "",
+        "身份": "霍大大一",
+        "金钱": 100,
+        "体力": {
+          "当前": 100,
+          "上限": 100
+        },
+        "魅力": 21,
+        "智力": 20,
+        "体能": 20,
+        "堕落度": 0
+      },
+      "type": "object",
+      "properties": {
+        "姓名": {
+          "default": "Marcus",
+          "type": "string"
+        },
+        "年龄": {
+          "default": 18,
+          "type": "number"
+        },
+        "身高": {
+          "default": "5'10\"",
+          "type": "string"
+        },
+        "体型": {
+          "default": "正常",
+          "type": "string",
+          "enum": [
+            "瘦弱",
+            "偏瘦",
+            "正常",
+            "薄肌",
+            "结实",
+            "壮",
+            "肌肉发达",
+            "偏胖",
+            "壮实成熟"
+          ]
+        },
+        "体型备注": {
+          "default": "",
+          "type": "string"
+        },
+        "外貌": {
+          "default": "",
+          "type": "string"
+        },
+        "爱好": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "喜欢的类型": {
+          "default": "",
+          "type": "string"
+        },
+        "性格": {
+          "default": "",
+          "type": "string"
+        },
+        "自述": {
+          "default": "",
+          "type": "string"
+        },
+        "身份": {
+          "default": "霍大大一",
+          "type": "string"
+        },
+        "金钱": {
+          "default": 100,
+          "type": "number"
+        },
+        "体力": {
+          "default": {
+            "当前": 100,
+            "上限": 100
+          },
+          "type": "object",
+          "properties": {
+            "当前": {
+              "default": 100,
+              "type": "number"
+            },
+            "上限": {
+              "default": 100,
+              "type": "number"
+            }
+          }
+        },
+        "魅力": {
+          "default": 21,
+          "type": "number"
+        },
+        "智力": {
+          "default": 20,
+          "type": "number"
+        },
+        "体能": {
+          "default": 20,
+          "type": "number"
+        },
+        "堕落度": {
+          "default": 0,
+          "type": "number"
+        }
+      }
+    },
+    "日程": {
+      "default": {
+        "课表": {},
+        "今日日程": {},
+        "兼职岗位": "无",
+        "室友选择": "Christian",
+        "自定义室友": {
+          "年级": "",
+          "身份": "",
+          "体型": "",
+          "气质": "",
+          "取向": "",
+          "性格": [],
+          "院系": "",
+          "外貌关键词": "",
+          "一句话": ""
+        }
+      },
+      "type": "object",
+      "properties": {
+        "课表": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "周一",
+              "周二",
+              "周三",
+              "周四",
+              "周五",
+              "周六",
+              "周日"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "description": "课程名"
+            },
+            "additionalProperties": {
+              "default": {
+                "开始时刻": "",
+                "时长分钟": 50,
+                "地点": "",
+                "教师": ""
+              },
+              "type": "object",
+              "properties": {
+                "开始时刻": {
+                  "default": "",
+                  "type": "string"
+                },
+                "时长分钟": {
+                  "default": 50,
+                  "type": "number"
+                },
+                "地点": {
+                  "default": "",
+                  "type": "string"
+                },
+                "教师": {
+                  "default": "",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "今日日程": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "事项"
+          },
+          "additionalProperties": {
+            "default": {
+              "时间": "",
+              "内容": "",
+              "地点": "",
+              "是否完成": false
+            },
+            "type": "object",
+            "properties": {
+              "时间": {
+                "default": "",
+                "type": "string"
+              },
+              "内容": {
+                "default": "",
+                "type": "string"
+              },
+              "地点": {
+                "default": "",
+                "type": "string"
+              },
+              "是否完成": {
+                "default": false,
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "兼职岗位": {
+          "default": "无",
+          "type": "string"
+        },
+        "室友选择": {
+          "default": "Christian",
+          "type": "string",
+          "enum": [
+            "Christian",
+            "Marky",
+            "自定义"
+          ]
+        },
+        "自定义室友": {
+          "default": {
+            "年级": "",
+            "身份": "",
+            "体型": "",
+            "气质": "",
+            "取向": "",
+            "性格": [],
+            "院系": "",
+            "外貌关键词": "",
+            "一句话": ""
+          },
+          "type": "object",
+          "properties": {
+            "年级": {
+              "default": "",
+              "type": "string"
+            },
+            "身份": {
+              "default": "",
+              "type": "string"
+            },
+            "体型": {
+              "default": "",
+              "type": "string"
+            },
+            "气质": {
+              "default": "",
+              "type": "string"
+            },
+            "取向": {
+              "default": "",
+              "type": "string"
+            },
+            "性格": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "院系": {
+              "default": "",
+              "type": "string"
+            },
+            "外貌关键词": {
+              "default": "",
+              "type": "string"
+            },
+            "一句话": {
+              "default": "",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "重要人物": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "名字"
+      },
+      "additionalProperties": {
+        "default": {
+          "身份": "",
+          "关系": "",
+          "好感": 0,
+          "外貌": "",
+          "性格": "",
+          "当前状态": "",
+          "约定": {},
+          "来源": ""
+        },
+        "type": "object",
+        "properties": {
+          "身份": {
+            "default": "",
+            "type": "string"
+          },
+          "关系": {
+            "default": "",
+            "type": "string"
+          },
+          "好感": {
+            "default": 0,
+            "type": "number"
+          },
+          "外貌": {
+            "default": "",
+            "type": "string"
+          },
+          "性格": {
+            "default": "",
+            "type": "string"
+          },
+          "当前状态": {
+            "default": "",
+            "type": "string"
+          },
+          "约定": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "description": "约定名"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "来源": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "道具": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "物品名"
+      },
+      "additionalProperties": {
+        "default": {
+          "说明": "",
+          "数量": 1
+        },
+        "type": "object",
+        "properties": {
+          "说明": {
+            "default": "",
+            "type": "string"
+          },
+          "数量": {
+            "default": 1,
+            "type": "number"
+          }
+        }
+      }
+    },
+    "地图解锁": {
+      "default": {
+        "外出": {},
+        "远行": {},
+        "旅途": {}
+      },
+      "type": "object",
+      "properties": {
+        "外出": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "地点名"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "远行": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "地点名"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "旅途": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "城市名"
+          },
+          "additionalProperties": {
+            "default": {
+              "季节或时间": "",
+              "备忘": ""
+            },
+            "type": "object",
+            "properties": {
+              "季节或时间": {
+                "default": "",
+                "type": "string"
+              },
+              "备忘": {
+                "default": "",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "升格候选": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "称呼"
+      },
+      "additionalProperties": {
+        "default": {
+          "地点": "",
+          "互动次数": 0,
+          "最近出现": ""
+        },
+        "type": "object",
+        "properties": {
+          "地点": {
+            "default": "",
+            "type": "string"
+          },
+          "互动次数": {
+            "default": 0,
+            "type": "number"
+          },
+          "最近出现": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
