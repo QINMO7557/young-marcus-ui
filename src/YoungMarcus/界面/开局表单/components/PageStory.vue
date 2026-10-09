@@ -1,48 +1,66 @@
 <template>
   <section class="page-story">
     <header class="hero">
-      <h1>故事从哪里开始？</h1>
-      <p class="sub">在总览地图上选一个起点，或自定义开局。</p>
+      <h1 class="ym-title ym-underline"><i class="fa-solid fa-location-dot" aria-hidden="true" /> 开局地图</h1>
+      <p class="sub">从这里出发，<br />去遇见你想要的故事。</p>
     </header>
 
     <div class="layout">
-      <div class="map-wrap paper">
-        <div class="map" :style="{ backgroundImage: `url(${overviewUrl})` }">
-          <button
-            type="button"
-            class="pin home"
-            :class="{ on: draft.主线 === '家里线' }"
-            title="01 家"
-            @click="selectHome"
-          >
-            <span class="pin-head">01</span>
-            <span class="pin-label">家 · 郊区小镇</span>
-          </button>
-          <button
-            type="button"
-            class="pin uni"
-            :class="{ on: draft.主线 === '大学线' }"
-            title="02 大学"
-            @click="selectUni"
-          >
-            <span class="pin-head">02</span>
-            <span class="pin-label">大学 · 都市</span>
-          </button>
+      <div class="map-wrap ym-sheet ym-tape" style="--tx: 88%; --ty: -8px; --tr: 30deg">
+        <div class="map">
+          <div class="canvas" :style="{ backgroundImage: `url(${overviewUrl})` }">
+            <span class="place city">都 市</span>
+            <span class="place town">郊区小镇</span>
+            <span class="route">约 3 小时车程 <b>76</b></span>
+            <button
+              type="button"
+              class="pin home"
+              :class="{ on: draft.主线 === '家里线' }"
+              title="01 家 · 家里线"
+              @click="selectHome"
+            >
+              <i class="fa-solid fa-location-dot head" aria-hidden="true" />
+              <span class="pin-label">01 家</span>
+            </button>
+            <button
+              type="button"
+              class="pin uni"
+              :class="{ on: draft.主线 === '大学线' }"
+              title="02 大学 · 大学线"
+              @click="selectUni"
+            >
+              <i class="fa-solid fa-location-dot head" aria-hidden="true" />
+              <span class="pin-label">02 大学</span>
+            </button>
+          </div>
+          <svg class="compass" viewBox="0 0 60 60" width="46" height="46" aria-hidden="true">
+            <circle cx="30" cy="30" r="20" fill="rgba(250,244,230,.7)" stroke="#3a2a1f" stroke-width="1" />
+            <path d="M30 4 L34 30 L30 56 L26 30Z" fill="#3a2a1f" />
+            <path d="M4 30 L30 26 L56 30 L30 34Z" fill="#6b5a48" />
+            <text x="30" y="12" font-size="7" text-anchor="middle" fill="#fff">N</text>
+          </svg>
         </div>
-        <p class="map-hint">约 3 小时车程 · 76 号公路</p>
+        <p class="map-hint">点图钉选择开局 · 或在下面自定义</p>
       </div>
 
-      <aside class="side paper">
-        <h2>★ 选择的开局</h2>
+      <div class="side-wrap">
+      <Paperclip class="clip" />
+      <aside class="side ym-sheet">
+        <h2 class="ym-title"><i class="fa-solid fa-star" aria-hidden="true" /> 选择的开局</h2>
+
+        <figure v-if="draft.主线 !== '自定义'" class="thumb">
+          <img :src="thumbUrl" alt="" loading="lazy" />
+        </figure>
 
         <template v-if="draft.主线 === '家里线'">
-          <p class="tag">01 家 · 家里线</p>
+          <p class="tag"><i class="fa-solid fa-location-dot" aria-hidden="true" /> 01 家</p>
+          <p class="meta">· 郊区小镇 · 家里线</p>
           <div class="field">
             <span>子路线</span>
             <div class="pills">
               <button
                 type="button"
-                class="pill"
+                class="ym-pill"
                 :class="{ on: draft.家里线子路线 === '社区学院' }"
                 @click="setHomeRoute('社区学院')"
               >
@@ -50,7 +68,7 @@
               </button>
               <button
                 type="button"
-                class="pill"
+                class="ym-pill"
                 :class="{ on: draft.家里线子路线 === '工作' }"
                 @click="setHomeRoute('工作')"
               >
@@ -61,10 +79,11 @@
         </template>
 
         <template v-else-if="draft.主线 === '大学线'">
-          <p class="tag">02 大学 · 大学线</p>
+          <p class="tag"><i class="fa-solid fa-location-dot" aria-hidden="true" /> 02 大学</p>
+          <p class="meta">· 大城市 · 大学城</p>
           <label class="field">
             <span>专业</span>
-            <input v-model="draft.专业" type="text" list="majors" placeholder="自选或从建议中选" />
+            <input v-model="draft.专业" class="ym-line-input" type="text" list="majors" placeholder="自选或从建议中选" />
             <datalist id="majors">
               <option v-for="m in majors" :key="m" :value="m" />
             </datalist>
@@ -74,81 +93,77 @@
             <span>室友三选</span>
             <div class="pills">
               <button
+                v-for="r in roommates"
+                :key="r"
                 type="button"
-                class="pill"
-                :class="{ on: draft.室友选择 === 'Christian' }"
-                @click="draft.室友选择 = 'Christian'"
+                class="ym-pill"
+                :class="{ on: draft.室友选择 === r }"
+                @click="draft.室友选择 = r"
               >
-                Christian
-              </button>
-              <button
-                type="button"
-                class="pill"
-                :class="{ on: draft.室友选择 === 'Marky' }"
-                @click="draft.室友选择 = 'Marky'"
-              >
-                Marky
-              </button>
-              <button
-                type="button"
-                class="pill"
-                :class="{ on: draft.室友选择 === '自定义' }"
-                @click="draft.室友选择 = '自定义'"
-              >
-                自定义
+                {{ r }}
               </button>
             </div>
           </div>
 
           <div v-if="draft.室友选择 === '自定义'" class="custom-roomie">
             <div class="row">
-              <input v-model="draft.自定义室友.年级" placeholder="年级" />
-              <input v-model="draft.自定义室友.身份" placeholder="身份" />
+              <input v-model="draft.自定义室友.年级" class="ym-line-input" placeholder="年级" />
+              <input v-model="draft.自定义室友.身份" class="ym-line-input" placeholder="身份" />
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.体型" placeholder="体型" />
-              <input v-model="draft.自定义室友.气质" placeholder="气质" />
+              <input v-model="draft.自定义室友.体型" class="ym-line-input" placeholder="体型" />
+              <input v-model="draft.自定义室友.气质" class="ym-line-input" placeholder="气质" />
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.取向" placeholder="取向" />
-              <input v-model="draft.自定义室友.院系" placeholder="院系" />
+              <input v-model="draft.自定义室友.取向" class="ym-line-input" placeholder="取向" />
+              <input v-model="draft.自定义室友.院系" class="ym-line-input" placeholder="院系" />
             </div>
-            <input v-model="draft.自定义室友.外貌关键词" placeholder="外貌关键词" />
+            <input v-model="draft.自定义室友.外貌关键词" class="ym-line-input" placeholder="外貌关键词" />
             <input
               :value="draft.自定义室友.性格.join('、')"
+              class="ym-line-input"
               placeholder="性格（顿号分隔）"
               @input="onTraits"
             />
-            <input v-model="draft.自定义室友.一句话" placeholder="一句话印象" />
-            <button type="button" class="btn-dashed" @click="rollRoommate">🎲 骰子随机</button>
+            <input v-model="draft.自定义室友.一句话" class="ym-line-input" placeholder="一句话印象" />
+            <button type="button" class="ym-sticker small" @click="rollRoommate">🎲 骰子随机</button>
           </div>
         </template>
 
         <template v-else>
-          <p class="tag">自定义开局</p>
-          <p class="hint">写下你想要的开场，AI 会判断更接近家里线还是大学线。</p>
+          <p class="tag"><i class="fa-solid fa-pen-nib" aria-hidden="true" /> 自定义开局</p>
+          <p class="meta">写下你想要的开场，AI 会判断更接近家里线还是大学线。</p>
         </template>
 
-        <label class="field">
-          <span>开局描述（可编辑）</span>
-          <textarea v-model="draft.开局描述" rows="7" maxlength="800" placeholder="写下你想要的开局…" />
+        <label class="field desc">
+          <span><i class="fa-solid fa-pen" aria-hidden="true" /> 开局描述（可编辑）</span>
+          <textarea v-model="draft.开局描述" class="ym-ruled" rows="5" maxlength="800" placeholder="写下你想要的开局…" />
           <small>{{ draft.开局描述.length }}/800</small>
         </label>
       </aside>
+      </div>
     </div>
 
     <div class="actions">
-      <button type="button" class="btn-ghost" @click="$emit('back')">← 上一步</button>
-      <button type="button" class="btn-dashed" @click="selectCustom">+ 自定义开局</button>
-      <button type="button" class="btn-primary" :disabled="!canSubmit || submitting" @click="submit">
+      <button type="button" class="ym-sticker" @click="$emit('back')">← 上一步</button>
+      <button type="button" class="ym-sticker" :class="{ picked: draft.主线 === '自定义' }" @click="selectCustom">
+        ＋ 自定义开局
+      </button>
+      <button type="button" class="ym-stamp" :disabled="!canSubmit || submitting" @click="submit">
         {{ submitting ? '提交中…' : '开始故事 →' }}
       </button>
     </div>
+    <Postmark class="mark" top="ROAD TRIP" bottom="I-76" />
+    <MapleLeaf class="leaf" :size="54" color="#b9472a" />
   </section>
 </template>
 
 <script setup lang="ts">
 import { mapAsset, MAP_FILES } from '../../assets/maps';
+import { DECOR_FILES } from '../../shared/decor';
+import Paperclip from '../../shared/Paperclip.vue';
+import MapleLeaf from '../../shared/MapleLeaf.vue';
+import Postmark from '../../shared/Postmark.vue';
 
 export type StoryDraft = {
   主线: '家里线' | '大学线' | '自定义';
@@ -185,7 +200,11 @@ const draft = computed({
 });
 
 const overviewUrl = computed(() => mapAsset(MAP_FILES.overview));
+const thumbUrl = computed(() =>
+  mapAsset(draft.value.主线 === '家里线' ? DECOR_FILES.postcardHome : DECOR_FILES.postcardCity),
+);
 
+const roommates = ['Christian', 'Marky', '自定义'] as const;
 const majors = ['历史', '文学', '商科', '计算机', '传媒', '体育管理', '艺术', '心理学', '未定通识'];
 
 const DEFAULT_HOME_COLLEGE =
@@ -288,119 +307,221 @@ function submit() {
 
 <style lang="scss" scoped>
 .page-story {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  padding-bottom: 30px;
 }
 
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
 .hero h1 {
-  font-size: 1.35rem;
-  color: var(--c-primary);
+  font-size: clamp(22px, 5.5vw, 30px);
+}
+.hero i {
+  font-size: 0.8em;
 }
 .sub {
+  font-family: var(--font-hand);
+  font-size: 13px;
   color: var(--c-text-muted);
-  font-size: 12px;
+  rotate: -3deg;
 }
 
+/* 两列等高：行高由左侧固定比例的地图决定，右侧面板绝对定位填满并内部滚动 */
 .layout {
   display: grid;
-  grid-template-columns: 1.25fr 0.95fr;
-  gap: 12px;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 14px;
+  align-items: stretch;
 }
-
-@media (max-width: 820px) {
+.side-wrap {
+  position: relative;
+  min-height: 0;
+  rotate: 1deg;
+}
+.side-wrap > .clip {
+  right: 14px;
+  top: -22px;
+}
+.side {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 90, 60, 0.45) transparent;
+}
+@media (max-width: 480px) {
   .layout {
     grid-template-columns: 1fr;
   }
+  .side {
+    position: relative;
+    inset: auto;
+    max-height: 560px;
+  }
 }
 
-.paper {
-  background: var(--c-surface-paper);
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-paper);
-  padding: 10px;
+.map-wrap {
+  padding: 8px 8px 6px;
+  rotate: -0.8deg;
 }
-
 .map {
   position: relative;
-  min-height: 320px;
-  border-radius: 4px;
-  background: #d9c7a8 center / cover no-repeat;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
+  background: #d9c7a8;
+}
+/* 画布与底图同比例（941×1670），居中裁切，图钉以底图坐标定位 */
+.canvas {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 941 / 1670;
+  top: -13%;
+  background: center / 100% 100% no-repeat;
+}
+.compass {
+  position: absolute;
+  left: 6px;
+  top: 6px;
 }
 
-.map-hint {
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--c-text-muted);
-  text-align: center;
+.place,
+.route {
+  position: absolute;
+  font-family: var(--font-title);
+  color: var(--c-text);
+  background: rgba(246, 238, 220, 0.92);
+  box-shadow: 1px 2px 4px rgba(40, 28, 18, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.place {
+  font-size: 15px;
+  padding: 2px 10px;
+}
+.place.city {
+  left: 40%;
+  top: 15%;
+  rotate: -4deg;
+}
+.place.town {
+  left: 4%;
+  top: 75%;
+  rotate: -6deg;
+}
+.route {
+  left: 46%;
+  top: 52%;
+  font-family: var(--font-hand);
+  font-size: 12px;
+  padding: 1px 6px;
+  rotate: 14deg;
+}
+.route b {
+  display: inline-block;
+  margin-left: 3px;
+  padding: 0 4px;
+  font-family: var(--font-latin);
+  font-size: 10px;
+  color: #fff;
+  background: #2f4f88;
+  border-radius: 3px 3px 8px 8px;
 }
 
 .pin {
   position: absolute;
+  translate: -50% -100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: transparent;
   border: none;
-  color: var(--c-text);
+  animation: ym-float 2.8s ease-in-out infinite;
 }
-
 .pin.home {
-  left: 18%;
-  bottom: 22%;
+  left: 36%;
+  top: 67%;
 }
 .pin.uni {
-  right: 16%;
-  top: 18%;
+  left: 70%;
+  top: 31%;
+  animation-delay: 0.9s;
 }
-
-.pin-head {
-  width: 34px;
-  height: 34px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: #c45c4a;
-  color: #fff;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+.pin .head {
+  font-size: 28px;
+  color: #c0392b;
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+  transition: transform 0.2s ease;
 }
-
-.pin-head {
-  font-size: 12px;
-  line-height: 1;
-}
-
 .pin-label {
-  background: rgba(255, 250, 240, 0.92);
-  border: 1px solid var(--c-border);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
+  font-family: var(--font-hand);
+  font-size: 13px;
   font-weight: 700;
+  background: rgba(250, 244, 230, 0.95);
+  padding: 1px 7px;
+  box-shadow: 1px 2px 3px rgba(40, 28, 18, 0.3);
 }
-
-.pin.on .pin-head {
+.pin:hover .head {
+  transform: scale(1.15);
+}
+.pin.on .head {
+  color: var(--c-primary);
+}
+.pin.on .pin-label {
   background: var(--c-primary);
-  outline: 2px solid var(--c-accent);
+  color: var(--c-primary-ink);
 }
 
-.side h2 {
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-}
-
-.tag {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.hint {
+.map-hint {
+  margin-top: 4px;
+  font-family: var(--font-hand);
   font-size: 12px;
+  color: var(--c-text-muted);
+  text-align: center;
+}
+
+.side {
+  padding: 16px 12px 12px;
+}
+.side h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.side h2 i {
+  font-size: 0.75em;
+}
+.thumb {
+  background: #fbf8f1;
+  padding: 5px;
+  box-shadow: var(--shadow-paper);
+  rotate: -1.5deg;
+  margin-bottom: 8px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.tag {
+  font-family: var(--font-title);
+  font-size: 17px;
+  color: var(--c-danger);
+}
+.tag i {
+  font-size: 0.85em;
+}
+.meta {
+  font-family: var(--font-hand);
+  font-size: 12.5px;
   color: var(--c-text-muted);
   margin-bottom: 8px;
 }
@@ -412,35 +533,32 @@ function submit() {
   margin-bottom: 10px;
 }
 .field > span {
-  font-size: 12px;
+  font-family: var(--font-hand);
+  font-size: 13.5px;
   font-weight: 700;
+}
+.field small {
+  align-self: flex-end;
+  font-size: 11px;
   color: var(--c-text-muted);
 }
-
-input,
-textarea {
-  border: 1px solid var(--c-border);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
-  padding: 7px 9px;
+.desc textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--font-hand);
+  font-size: 13px;
+  line-height: 32px;
+  padding: 0 6px 0 36px;
+  border: 1px solid rgba(150, 125, 95, 0.4);
+  background-color: #fbf7ec;
+  background-position: 0 0, 0 0, 0 0;
+  outline: none;
 }
 
 .pills {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-.pill {
-  border: 1px solid var(--c-border);
-  background: #fff;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-}
-.pill.on {
-  background: var(--c-primary);
-  color: #fff;
-  border-color: var(--c-primary);
 }
 
 .custom-roomie {
@@ -454,37 +572,32 @@ textarea {
   grid-template-columns: 1fr 1fr;
   gap: 6px;
 }
+.ym-sticker.small {
+  padding: 5px 10px;
+  font-size: 13px;
+}
 
 .actions {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
 }
+.ym-sticker.picked {
+  background-color: #f6dc8a;
+  border-color: var(--c-primary);
+}
 
-.btn-primary,
-.btn-ghost,
-.btn-dashed {
-  padding: 9px 14px;
-  border-radius: 4px;
-  font-weight: 700;
+.mark {
+  left: 2px;
+  bottom: -6px;
+  rotate: -10deg;
 }
-.btn-primary {
-  background: var(--c-primary);
-  color: #f7f2e8;
-  border: 2px solid #1f3d31;
-}
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--c-border);
-}
-.btn-dashed {
-  background: #fff;
-  border: 1.5px dashed var(--c-primary);
-  color: var(--c-primary);
+.leaf {
+  right: -8px;
+  bottom: -14px;
+  rotate: 30deg;
 }
 </style>

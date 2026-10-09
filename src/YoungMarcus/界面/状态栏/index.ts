@@ -1,8 +1,11 @@
 import { waitUntil } from 'async-wait-until';
+import '../shared/paper.css';
+import { applyDecorVars } from '../shared/decor';
 import App from './App.vue';
 import './global.css';
 
 $(async () => {
+  applyDecorVars();
   await waitGlobalInitialized('Mvu');
   await waitUntil(() => _.has(getVariables({ type: 'message' }), 'stat_data'));
   const app = createApp(App).use(createPinia());

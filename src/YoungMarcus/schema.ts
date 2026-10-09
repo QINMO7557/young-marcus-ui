@@ -38,7 +38,7 @@ export const Schema = z.object({
     .object({
       姓名: z.string().prefault('Marcus'),
       年龄: z.coerce.number().transform(value => Math.max(18, Math.floor(value))).prefault(18),
-      身高: z.string().prefault(`5'10"`),
+      身高: z.string().prefault('175 cm'),
       体型: z
         .enum(['瘦弱', '偏瘦', '正常', '薄肌', '结实', '壮', '肌肉发达', '偏胖', '壮实成熟'])
         .prefault('正常'),
@@ -71,7 +71,7 @@ export const Schema = z.object({
     .prefault({
       姓名: 'Marcus',
       年龄: 18,
-      身高: `5'10"`,
+      身高: '175 cm',
       体型: '正常',
       体型备注: '',
       外貌: '',

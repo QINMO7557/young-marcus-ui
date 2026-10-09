@@ -1,43 +1,71 @@
 <template>
   <section class="page-world">
-    <header class="hero">
-      <h1>欢迎来到新的一页</h1>
-      <p class="sub">一个关于成长、家与远方的故事。</p>
+    <span class="ym-stain stain-a" style="--s: 150px" aria-hidden="true" />
+    <header class="hero ym-sheet">
+      <h1 class="ym-title ym-underline">欢迎来到新的一页</h1>
+      <p class="sub">—— 一个关于成长、家与远方的故事。</p>
     </header>
 
     <div class="layout">
-      <article class="letter paper">
-        <h2>致新来的你</h2>
+      <article class="letter ym-sheet ym-ruled ym-tape" style="--tx: 14%; --tr: -8deg">
+        <h2 class="ym-title ym-underline">致新来的你</h2>
         <p class="typewriter" :class="{ done: typedDone }" aria-live="polite">{{ displayed }}</p>
+        <Postmark class="letter-mark" top="HALSTON" bottom="FALL · 01" />
       </article>
 
       <div class="postcards">
-        <figure class="card wobble" style="--r: -3deg">
-          <div class="photo home-photo" />
-          <figcaption>HOME · 郊区小镇</figcaption>
+        <figure class="card ym-lift ym-wobble" style="--r: 3deg">
+          <Paperclip class="clip" />
+          <img :src="homeImg" alt="海鸥湾镇俯瞰插画" loading="lazy" />
+          <figcaption><b>HOME</b> · 郊区小镇</figcaption>
         </figure>
-        <div class="dash">约 3 小时车程</div>
-        <figure class="card wobble" style="--r: 2.5deg">
-          <div class="photo city-photo" />
-          <figcaption>CITY · 大学城</figcaption>
+        <div class="drive" aria-hidden="true">
+          <svg viewBox="0 0 120 40" width="96" height="32">
+            <path d="M8 6 C 40 2, 30 34, 70 28 S 108 20, 112 34" fill="none" stroke="#3a2a1f" stroke-width="1.6" stroke-dasharray="4 4" />
+            <path d="M106 30 l6 4 l-1 -7" fill="none" stroke="#3a2a1f" stroke-width="1.6" />
+          </svg>
+          <span>约 <b>3</b> 小时车程</span>
+        </div>
+        <figure class="card ym-lift ym-wobble ym-tape" style="--r: -2.5deg; --d: 1.2s; --ty: -12px; --tr: 6deg">
+          <img :src="cityImg" alt="霍尔斯顿市与大学城俯瞰插画" loading="lazy" />
+          <figcaption><b>CITY</b> · 大学城</figcaption>
         </figure>
       </div>
     </div>
 
     <div class="notes">
-      <aside class="sticky green wobble" style="--r: -2deg">开放沙盒，没有固定结局</aside>
-      <aside class="sticky yellow wobble" style="--r: 1.5deg">时间流动，四季与昼夜更替</aside>
-      <aside class="sticky coral wobble" style="--r: -1deg">人们会记得你，关系慢慢变化</aside>
+      <aside class="tag green ym-lift ym-wobble ym-tape" style="--r: -2deg; --tw: 46px; --ty: -11px">
+        <i class="fa-solid fa-tree" aria-hidden="true" />
+        <span>开放式沙盒，<br />没有固定结局</span>
+      </aside>
+      <aside class="tag amber ym-lift ym-wobble ym-tape" style="--r: 1.5deg; --d: 0.8s; --tw: 46px; --ty: -11px">
+        <i class="fa-solid fa-sun" aria-hidden="true" />
+        <span>时间会流动，<br />四季与日夜</span>
+      </aside>
+      <aside class="tag coral ym-lift ym-wobble ym-tape" style="--r: -1deg; --d: 1.6s; --tw: 46px; --ty: -11px">
+        <i class="fa-solid fa-user-group" aria-hidden="true" />
+        <span>人会记住你，<br />关系慢慢变化</span>
+      </aside>
     </div>
 
     <div class="actions">
-      <button type="button" class="btn-primary" @click="$emit('next')">下一步：建立档案 →</button>
+      <button type="button" class="ym-stamp" @click="$emit('next')">下一步：建立档案 →</button>
     </div>
+    <MapleLeaf class="leaf" :size="58" color="#c86a2c" />
   </section>
 </template>
 
 <script setup lang="ts">
+import { mapAsset } from '../../assets/maps';
+import MapleLeaf from '../../shared/MapleLeaf.vue';
+import Paperclip from '../../shared/Paperclip.vue';
+import Postmark from '../../shared/Postmark.vue';
+import { DECOR_FILES } from '../../shared/decor';
+
 defineEmits<{ next: [] }>();
+
+const homeImg = mapAsset(DECOR_FILES.postcardHome);
+const cityImg = mapAsset(DECOR_FILES.postcardCity);
 
 const WORLD_TEXT =
   '美国东岸的海鸥湾镇，白围栏、枫树、木栈道和灯塔；三小时车程外是霍尔斯顿市，红砖校园和钟楼被摩天楼包围，地铁从楼群间穿过。你刚满十八岁，或者更大一点。今年秋天，你可以留在海边的新家，和家人、邻居一起过日子；也可以搬进城里的大学宿舍，开始一个人的生活。这里没有结局，只有你想过成什么样的日子。';
@@ -72,208 +100,180 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .page-world {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
+.stain-a {
+  left: -30px;
+  bottom: 30px;
+}
+
+.hero {
+  padding: 14px 18px 12px;
+  rotate: 0.4deg;
+  border-radius: 2px;
+}
 .hero h1 {
-  font-family: var(--font-hand);
-  font-size: 1.55rem;
-  color: var(--c-primary);
+  font-size: clamp(24px, 6vw, 34px);
 }
-
 .sub {
-  color: var(--c-text-muted);
   margin-top: 4px;
+  text-align: right;
+  font-family: var(--font-hand);
+  color: var(--c-text-muted);
+  font-size: 13px;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1.2fr 0.9fr;
-  gap: 14px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 18px;
+  align-items: start;
 }
-
-@media (max-width: 720px) {
+@media (max-width: 460px) {
   .layout {
     grid-template-columns: 1fr;
   }
 }
 
-.paper {
-  background: var(--c-surface-paper);
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-paper);
-  padding: 14px 16px;
-  border-radius: 2px;
-  position: relative;
+.letter {
+  padding: 18px 16px 26px 40px;
+  rotate: -1.2deg;
+  min-height: 260px;
 }
-
-.paper::before {
-  content: '';
-  position: absolute;
-  inset: 8px auto auto 0;
-  width: 100%;
-  height: calc(100% - 16px);
-  background-image: repeating-linear-gradient(
-    transparent,
-    transparent 27px,
-    rgba(120, 150, 190, 0.22) 28px
-  );
-  pointer-events: none;
-  opacity: 0.55;
-}
-
 .letter h2 {
-  font-size: 1rem;
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 1;
+  font-size: 20px;
+  margin-bottom: 10px;
 }
-
 .typewriter {
   position: relative;
   z-index: 1;
-  min-height: 8.5em;
+  min-height: 9em;
   white-space: pre-wrap;
+  font-family: var(--font-hand);
+  font-size: 14.5px;
+  line-height: 32px;
+  color: #3a2c22;
 }
-
 .typewriter:not(.done)::after {
   content: '▌';
   color: var(--c-primary);
   animation: blink 1s step-end infinite;
 }
-
 @keyframes blink {
   50% {
     opacity: 0;
   }
+}
+.letter-mark {
+  right: -10px;
+  bottom: -18px;
+  rotate: -12deg;
+  opacity: 0.6;
 }
 
 .postcards {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .card {
-  width: min(100%, 220px);
-  background: #fff;
-  padding: 8px 8px 12px;
+  position: relative;
+  width: min(100%, 250px);
+  background: #fbf8f1;
+  padding: 8px 8px 6px;
   box-shadow: var(--shadow-paper);
-  transform: rotate(var(--r, 0deg));
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
 }
-
-.card:hover {
-  transform: rotate(var(--r, 0deg)) translateY(-6px) scale(1.02);
-  box-shadow: var(--shadow-lift);
-  z-index: 2;
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.02);
 }
-
-.photo {
-  height: 110px;
-  border-radius: 2px;
-  background-size: cover;
-  background-position: center;
+.card .clip {
+  right: 14px;
+  top: -18px;
+  rotate: 8deg;
 }
-
-.home-photo {
-  background-image: linear-gradient(160deg, #c97b4a, #e8c07a 40%, #6d9a78 75%);
-}
-
-.city-photo {
-  background-image: linear-gradient(160deg, #4a6078, #8aa0b8 35%, #c45c4a 70%, #2a3545);
-}
-
 .card figcaption {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
+  margin-top: 6px;
+  font-family: var(--font-hand);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.card figcaption b {
+  font-family: var(--font-latin);
+  letter-spacing: 0.12em;
 }
 
-.dash {
-  font-size: 11px;
-  color: var(--c-text-muted);
-  border-left: 2px dashed var(--c-border);
-  padding-left: 8px;
-  align-self: flex-start;
-  margin-left: 24px;
+.drive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-hand);
+  font-size: 13px;
+  color: var(--c-text);
+  rotate: -3deg;
+}
+.drive b {
+  font-size: 17px;
 }
 
 .notes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
-
-@media (max-width: 720px) {
+@media (max-width: 460px) {
   .notes {
     grid-template-columns: 1fr;
   }
 }
 
-.sticky {
-  padding: 12px 10px;
-  font-size: 12px;
+.tag {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px 12px;
+  font-family: var(--font-hand);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #fbf3e2;
+  background-image: var(--img-grain);
+  border-radius: 3px;
   box-shadow: var(--shadow-paper);
-  transform: rotate(var(--r, 0deg));
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
 }
-
-.sticky:hover {
-  transform: rotate(var(--r, 0deg)) translateY(-5px);
-  box-shadow: var(--shadow-lift);
+.tag i {
+  font-size: 20px;
+  opacity: 0.9;
 }
-
-.sticky.green {
-  background: var(--c-surface-note-green);
+.tag.green {
+  background-color: #5f7650;
 }
-.sticky.yellow {
-  background: var(--c-surface-note);
+.tag.amber {
+  background-color: #c79a4a;
+  color: #3a2a1f;
 }
-.sticky.coral {
-  background: var(--c-surface-note-coral);
-}
-
-.wobble {
-  animation: wobble 3.6s ease-in-out infinite;
-}
-
-@keyframes wobble {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -2px;
-  }
+.tag.coral {
+  background-color: #a8513c;
 }
 
 .actions {
   display: flex;
   justify-content: center;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
-.btn-primary {
-  background: var(--c-primary);
-  color: #f7f2e8;
-  border: 2px solid #1f3d31;
-  padding: 10px 18px;
-  border-radius: 4px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  box-shadow: 2px 3px 0 rgba(30, 40, 30, 0.25);
-}
-
-.btn-primary:hover {
-  background: var(--c-primary-soft);
+.leaf {
+  right: -6px;
+  bottom: -14px;
+  rotate: 22deg;
 }
 </style>

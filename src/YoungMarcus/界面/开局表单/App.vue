@@ -1,22 +1,24 @@
 <template>
-  <div class="folder">
-    <div class="tab">角色卡 · 开局设置</div>
-    <div class="folder-body">
-      <StepProgress v-model="step" />
-      <PageWorld v-if="step === 1" @next="step = 2" />
-      <PageProfile
-        v-else-if="step === 2"
-        v-model="profile"
-        @back="step = 1"
-        @next="step = 3"
-      />
-      <PageStory
-        v-else
-        v-model="story"
-        :submitting="submitting"
-        @back="step = 2"
-        @submit="onSubmit"
-      />
+  <div class="desk">
+    <div class="desk-photo" aria-hidden="true" />
+    <MapleLeaf class="desk-leaf" :size="78" color="#b9472a" />
+    <div class="folder">
+      <div class="tab">
+        <span class="ym-title">角色卡</span>
+        <small>· 开局设置 ·</small>
+      </div>
+      <div class="folder-body ym-kraft">
+        <StepProgress v-model="step" />
+        <PageWorld v-if="step === 1" @next="step = 2" />
+        <PageProfile v-else-if="step === 2" v-model="profile" @back="step = 1" @next="step = 3" />
+        <PageStory
+          v-else
+          v-model="story"
+          :submitting="submitting"
+          @back="step = 2"
+          @submit="onSubmit"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -27,6 +29,12 @@ import PageProfile, { type ProfileForm } from './components/PageProfile.vue';
 import PageStory, { type StoryDraft } from './components/PageStory.vue';
 import PageWorld from './components/PageWorld.vue';
 import StepProgress from './components/StepProgress.vue';
+import MapleLeaf from '../shared/MapleLeaf.vue';
+import { mapAsset } from '../assets/maps';
+import { DECOR_FILES } from '../shared/decor';
+import { formatHeightCm, parseHeightCm } from '../shared/height';
+
+const deskPhoto = `url("${mapAsset(DECOR_FILES.postcardCity)}")`;
 
 const store = useDataStore();
 const step = ref(1);
@@ -35,7 +43,7 @@ const submitting = ref(false);
 const profile = ref<ProfileForm>({
   姓名: store.data.主角.姓名 || 'Marcus',
   年龄: Math.max(18, store.data.主角.年龄 || 18),
-  身高: store.data.主角.身高 || `5'10"`,
+  身高: parseHeightCm(store.data.主角.身高),
   体型: store.data.主角.体型 || '正常',
   体型备注: store.data.主角.体型备注 || '',
   外貌: store.data.主角.外貌 || '',
@@ -59,7 +67,7 @@ function buildIdentityMessage(): string {
   const s = story.value;
   const lines = [
     `【开局确认】`,
-    `姓名：${p.姓名}｜年龄：${p.年龄}｜身高：${p.身高}｜体型：${p.体型}${p.体型备注 ? `（${p.体型备注}）` : ''}`,
+    `姓名：${p.姓名}｜年龄：${p.年龄}｜身高：${formatHeightCm(p.身高)}｜体型：${p.体型}${p.体型备注 ? `（${p.体型备注}）` : ''}`,
     `外貌：${p.外貌 || '（未填）'}`,
     `爱好：${p.爱好.join('、') || '（未填）'}`,
     `喜欢的类型：${p.喜欢的类型 || '（未填）'}`,
@@ -90,7 +98,7 @@ async function onSubmit() {
 
     store.data.主角.姓名 = p.姓名.trim();
     store.data.主角.年龄 = Math.max(18, Math.floor(Number(p.年龄) || 18));
-    store.data.主角.身高 = p.身高.trim() || `5'10"`;
+    store.data.主角.身高 = formatHeightCm(p.身高);
     store.data.主角.体型 = p.体型;
     store.data.主角.体型备注 = p.体型备注.trim();
     store.data.主角.外貌 = p.外貌.trim();
@@ -134,33 +142,77 @@ async function onSubmit() {
 </script>
 
 <style lang="scss" scoped>
-.folder {
-  max-width: 860px;
-  margin: 0 auto;
+.desk {
   position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 14px 10px 18px;
+  border-radius: 6px;
+  background-color: var(--c-surface-desk);
+  background-image:
+    var(--img-grain),
+    repeating-linear-gradient(
+      92deg,
+      rgba(0, 0, 0, 0.1) 0 2px,
+      transparent 2px 9px,
+      rgba(255, 220, 170, 0.05) 9px 11px,
+      transparent 11px 23px
+    ),
+    linear-gradient(180deg, #5a3a26, #3e2618);
+  overflow: hidden;
+}
+
+.desk-photo {
+  position: absolute;
+  right: 6%;
+  top: -18px;
+  width: 150px;
+  height: 92px;
+  background: v-bind(deskPhoto) center / cover;
+  border: 6px solid #f4eee2;
+  border-bottom-width: 14px;
+  rotate: 5deg;
+  box-shadow: var(--shadow-paper);
+  opacity: 0.95;
+}
+
+.desk-leaf {
+  right: -14px;
+  bottom: -10px;
+  rotate: -28deg;
+  z-index: 6;
+}
+
+.folder {
+  position: relative;
+  z-index: 2;
 }
 
 .tab {
-  display: inline-block;
-  background: var(--c-surface-folder);
-  border: 1px solid var(--c-border);
-  border-bottom: none;
-  padding: 6px 14px;
-  border-radius: 8px 8px 0 0;
-  font-size: 12px;
-  font-weight: 700;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-left: 10px;
+  padding: 7px 22px 6px 16px;
+  background-color: var(--c-surface-folder);
+  background-image: var(--img-grain);
+  border-radius: 10px 18px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 210, 0.4);
+}
+.tab .ym-title {
+  font-size: 20px;
+}
+.tab small {
+  font-family: var(--font-hand);
   color: var(--c-text-muted);
-  margin-left: 16px;
+  font-size: 12px;
 }
 
 .folder-body {
-  background:
-    radial-gradient(circle at 12% 8%, rgba(180, 90, 40, 0.08), transparent 28%),
-    radial-gradient(circle at 88% 92%, rgba(60, 90, 50, 0.08), transparent 30%),
-    var(--c-surface-folder);
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-paper);
-  padding: 14px 14px 18px;
-  border-radius: 4px;
+  position: relative;
+  border-radius: 0 8px 8px 8px;
+  padding: 12px 12px 22px;
 }
 </style>

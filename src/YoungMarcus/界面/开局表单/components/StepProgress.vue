@@ -1,16 +1,13 @@
 <template>
-  <div class="steps" role="navigation" aria-label="开局步骤">
-    <div
-      v-for="(step, index) in steps"
-      :key="step.id"
-      class="step"
-      :class="{ active: model === step.id, done: model > step.id }"
-    >
-      <span class="dot">{{ index + 1 }}</span>
-      <span class="label">{{ step.label }}</span>
-      <span v-if="index < steps.length - 1" class="line" />
-    </div>
-  </div>
+  <nav class="steps ym-sheet ym-tape" style="--tx: 8%; --ty: -9px; --tr: -38deg; --tw: 60px" aria-label="开局步骤">
+    <template v-for="(step, index) in steps" :key="step.id">
+      <div class="step" :class="{ active: model === step.id, done: model > step.id }">
+        <span class="dot">{{ index + 1 }}</span>
+        <span class="label">{{ step.label }}</span>
+      </div>
+      <span v-if="index < steps.length - 1" class="line" :class="{ done: model > step.id }" />
+    </template>
+  </nav>
 </template>
 
 <script setup lang="ts">
@@ -26,59 +23,65 @@ const steps = [
 <style lang="scss" scoped>
 .steps {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 4px 16px;
-  flex-wrap: wrap;
+  padding: 12px 14px 10px;
+  margin-bottom: 14px;
+  border-radius: 3px;
+  rotate: -0.3deg;
 }
 
 .step {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  color: var(--c-text-muted);
-  position: relative;
+  gap: 4px;
+  min-width: 64px;
 }
 
 .dot {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 2px solid var(--c-border);
+  border: 1.6px solid rgba(90, 70, 50, 0.55);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  background: var(--c-surface-paper);
+  font-family: var(--font-latin);
+  font-size: 15px;
+  color: var(--c-text-muted);
+  background: rgba(255, 252, 244, 0.7);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .label {
-  font-size: 12px;
+  font-family: var(--font-hand);
+  font-size: 13px;
+  color: var(--c-text-muted);
   white-space: nowrap;
 }
 
 .line {
-  width: 28px;
+  flex: 1;
+  max-width: 120px;
   height: 2px;
-  background: var(--c-border);
-  margin: 0 4px;
+  margin-top: 15px;
+  background: rgba(150, 125, 95, 0.4);
+}
+.line.done {
+  background: var(--c-accent);
 }
 
 .step.active .dot,
 .step.done .dot {
-  background: var(--c-accent);
-  border-color: var(--c-accent);
-  color: #fff;
+  background: radial-gradient(circle at 35% 30%, var(--c-accent-soft), var(--c-accent));
+  border-color: #8f6d2a;
+  color: #fff8e6;
+  box-shadow: 0 0 0 3px rgba(184, 145, 63, 0.22);
 }
 
 .step.active .label {
   color: var(--c-text);
   font-weight: 700;
-}
-
-.step.done .line {
-  background: var(--c-accent);
 }
 </style>
