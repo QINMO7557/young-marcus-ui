@@ -26,9 +26,11 @@
             </button>
           </nav>
 
-          <SchedulePanel v-if="activeTab === '日程'" />
-          <PeoplePanel v-else-if="activeTab === '人物'" />
-          <ItemsPanel v-else />
+          <div class="panel-stage">
+            <SchedulePanel v-if="activeTab === '日程'" />
+            <PeoplePanel v-else-if="activeTab === '人物'" />
+            <ItemsPanel v-else />
+          </div>
         </div>
       </template>
     </div>
@@ -121,6 +123,19 @@ const tabs = [
   background: var(--c-surface-paper);
   color: var(--c-text);
   translate: 0 1px;
+}
+
+.panel-stage {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 180px;
+  max-height: 420px;
+  overflow: hidden;
+}
+.panel-stage > * {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .footer {

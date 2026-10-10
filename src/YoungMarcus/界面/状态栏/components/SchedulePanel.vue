@@ -27,7 +27,8 @@ const items = computed(() =>
 
 <style lang="scss" scoped>
 .panel {
-  min-height: 130px;
+  min-height: 160px;
+  height: 100%;
   padding: 10px 14px 12px 34px;
   background-image:
     radial-gradient(circle at 12px 50%, #7a5a3a 0 4px, transparent 4.5px),

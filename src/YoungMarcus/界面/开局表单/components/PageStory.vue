@@ -83,14 +83,54 @@
           <p class="meta">· 大城市 · 大学城</p>
           <label class="field">
             <span>专业</span>
-            <input v-model="draft.专业" class="ym-line-input" type="text" list="majors" placeholder="自选或从建议中选" />
+            <input v-model="draft.专业" class="ym-line-input" type="text" list="majors" placeholder="下拉可选，也可自填" />
             <datalist id="majors">
               <option v-for="m in majors" :key="m" :value="m" />
             </datalist>
           </label>
 
           <div class="field">
-            <span>室友三选</span>
+            <span>宿舍房型</span>
+            <div class="pills">
+              <button
+                v-for="r in dormTypes"
+                :key="r"
+                type="button"
+                class="ym-pill"
+                :class="{ on: draft.宿舍.房型 === r }"
+                @click="setDormType(r)"
+              >
+                {{ r }}
+              </button>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>寝室类型</span>
+            <input
+              v-model="draft.宿舍.寝室类型"
+              class="ym-line-input"
+              type="text"
+              list="dorm-kinds"
+              placeholder="混合 / 学科·某某系"
+            />
+            <datalist id="dorm-kinds">
+              <option v-for="k in dormKinds" :key="k" :value="k" />
+            </datalist>
+          </label>
+
+          <label class="field">
+            <span>氛围</span>
+            <input v-model="draft.宿舍.氛围" class="ym-line-input" type="text" placeholder="如：走廊放音乐、箱子还没拆完" />
+          </label>
+
+          <label class="field">
+            <span>带路人数</span>
+            <input v-model.number="draft.宿舍.带路人数" class="ym-line-input short" type="number" min="0" max="20" />
+          </label>
+
+          <div v-if="draft.宿舍.房型 === '双人'" class="field">
+            <span>室友三选（双人间）</span>
             <div class="pills">
               <button
                 v-for="r in roommates"
@@ -105,18 +145,18 @@
             </div>
           </div>
 
-          <div v-if="draft.室友选择 === '自定义'" class="custom-roomie">
+          <div v-if="draft.宿舍.房型 === '双人' && draft.室友选择 === '自定义'" class="custom-roomie">
             <div class="row">
-              <input v-model="draft.自定义室友.年级" class="ym-line-input" placeholder="年级" />
-              <input v-model="draft.自定义室友.身份" class="ym-line-input" placeholder="身份" />
+              <input v-model="draft.自定义室友.年级" class="ym-line-input" list="rm-grade" placeholder="年级" />
+              <input v-model="draft.自定义室友.身份" class="ym-line-input" list="rm-role" placeholder="身份" />
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.体型" class="ym-line-input" placeholder="体型" />
-              <input v-model="draft.自定义室友.气质" class="ym-line-input" placeholder="气质" />
+              <input v-model="draft.自定义室友.体型" class="ym-line-input" list="rm-body" placeholder="体型" />
+              <input v-model="draft.自定义室友.气质" class="ym-line-input" list="rm-vibe" placeholder="气质" />
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.取向" class="ym-line-input" placeholder="取向" />
-              <input v-model="draft.自定义室友.院系" class="ym-line-input" placeholder="院系" />
+              <input v-model="draft.自定义室友.取向" class="ym-line-input" list="rm-orient" placeholder="取向" />
+              <input v-model="draft.自定义室友.社团" class="ym-line-input" list="rm-club" placeholder="社团（可自填）" />
             </div>
             <input v-model="draft.自定义室友.外貌关键词" class="ym-line-input" placeholder="外貌关键词" />
             <input
@@ -127,6 +167,12 @@
             />
             <input v-model="draft.自定义室友.一句话" class="ym-line-input" placeholder="一句话印象" />
             <button type="button" class="ym-sticker small" @click="rollRoommate">🎲 骰子随机</button>
+            <datalist id="rm-grade"><option v-for="x in pools.年级" :key="x" :value="x" /></datalist>
+            <datalist id="rm-role"><option v-for="x in pools.身份" :key="x" :value="x" /></datalist>
+            <datalist id="rm-body"><option v-for="x in pools.体型" :key="x" :value="x" /></datalist>
+            <datalist id="rm-vibe"><option v-for="x in pools.气质" :key="x" :value="x" /></datalist>
+            <datalist id="rm-orient"><option v-for="x in pools.取向" :key="x" :value="x" /></datalist>
+            <datalist id="rm-club"><option v-for="x in pools.社团" :key="x" :value="x" /></datalist>
           </div>
         </template>
 
@@ -178,9 +224,15 @@ export type StoryDraft = {
     气质: string;
     取向: string;
     性格: string[];
-    院系: string;
+    社团: string;
     外貌关键词: string;
     一句话: string;
+  };
+  宿舍: {
+    房型: '单人' | '双人' | '四人' | '八人';
+    寝室类型: string;
+    氛围: string;
+    带路人数: number;
   };
 };
 
@@ -205,7 +257,17 @@ const thumbUrl = computed(() =>
 );
 
 const roommates = ['Christian', 'Marky', '自定义'] as const;
-const majors = ['历史', '文学', '商科', '计算机', '传媒', '体育管理', '艺术', '心理学', '未定通识'];
+const majors = ['历史', '文学', '商科', '计算机', '传媒', '体育管理', '艺术', '心理学', '未定专业'];
+const dormTypes = ['单人', '双人', '四人', '八人'] as const;
+const dormKinds = ['混合', '学科·历史系', '学科·商学院', '学科·计算机', '学科·体育', '学科·艺术'];
+const pools = {
+  年级: ['大一同届', '大二学长', '大三学长', '交换生'],
+  身份: ['普通学生', '运动员', '社团干部', '艺术生', '理工宅', '兄弟会边缘'],
+  体型: ['瘦弱', '偏瘦', '正常', '薄肌', '结实', '壮', '肌肉发达', '偏胖'],
+  气质: ['开朗话多', '沉默冷淡', '洁癖整洁', '邋遢随性', '社牛', '社恐'],
+  取向: ['男同', '双', '直男好奇', '未确定'],
+  社团: ['无', '桌游社', '摄影社', '足球社', '合唱团', '志愿者协会', '电竞社'],
+};
 
 const DEFAULT_HOME_COLLEGE =
   '9 月 1 日清晨，搬到海鸥湾镇后不久。Milo 抢着浴室要去社区学院上课，餐桌上是你的社区学院课表（霍大附属）。爸爸匆匆去新公司报到。你住在家里走读，周末也可以坐巴士进城看看大学城。隔壁邻居刚好来敲门借牛奶。';
@@ -233,7 +295,7 @@ function selectUni() {
   patch({
     主线: '大学线',
     家里线子路线: '无',
-    专业: draft.value.专业 || '未定通识',
+    专业: draft.value.专业 || '未定专业',
     开局描述: DEFAULT_UNI,
   });
 }
@@ -243,6 +305,15 @@ function selectCustom() {
     主线: '自定义',
     家里线子路线: '无',
     开局描述: draft.value.主线 === '自定义' ? draft.value.开局描述 : '',
+  });
+}
+
+function setDormType(房型: '单人' | '双人' | '四人' | '八人') {
+  const 带路人数 =
+    房型 === '单人' ? 0 : 房型 === '双人' ? 1 : 房型 === '四人' ? 3 : 7;
+  patch({
+    宿舍: { ...draft.value.宿舍, 房型, 带路人数 },
+    室友选择: 房型 === '双人' ? draft.value.室友选择 : draft.value.室友选择,
   });
 }
 
@@ -285,7 +356,7 @@ function rollRoommate() {
         ['沉默', '观察力强'],
         ['直率', '护短'],
       ]),
-      院系: pick(['商学院', '文学院', '理工', '体育', '艺术']),
+      社团: pick(['无', '桌游社', '摄影社', '足球社', '合唱团']),
       外貌关键词: pick(['短发深肤', '金棕卷发', '眼镜书卷气', '运动短寸']),
       一句话: pick(['看起来很好相处。', '有点难亲近，但靠谱。', '房间已经布置得很有生活感。']),
     },
@@ -295,7 +366,11 @@ function rollRoommate() {
 const canSubmit = computed(() => {
   if (!draft.value.开局描述.trim()) return false;
   if (draft.value.主线 === '家里线') return draft.value.家里线子路线 !== '无';
-  if (draft.value.主线 === '大学线') return !!draft.value.专业.trim() && !!draft.value.室友选择;
+  if (draft.value.主线 === '大学线') {
+    if (!draft.value.专业.trim()) return false;
+    if (draft.value.宿舍.房型 === '双人' && !draft.value.室友选择) return false;
+    return true;
+  }
   return draft.value.主线 === '自定义';
 });
 
@@ -571,6 +646,10 @@ function submit() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+}
+.ym-line-input.short {
+  width: 72px;
+  align-self: flex-start;
 }
 .ym-sticker.small {
   padding: 5px 10px;

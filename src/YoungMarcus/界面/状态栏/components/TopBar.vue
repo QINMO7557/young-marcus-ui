@@ -30,7 +30,9 @@ const store = useDataStore();
 
 const dateText = computed(() => {
   const w = store.data.世界;
-  return `${w.日期} ${w.星期} · ${w.时段}`;
+  const clock = w.时刻 || '';
+  const slot = w.时段 || '';
+  return clock ? `${w.日期} ${w.星期} · ${clock}` : `${w.日期} ${w.星期} · ${slot}`;
 });
 
 const WEATHER_ICONS: Record<string, string> = {

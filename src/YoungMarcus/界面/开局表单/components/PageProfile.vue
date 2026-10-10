@@ -127,9 +127,6 @@
 
     <div class="actions">
       <button type="button" class="ym-sticker" @click="$emit('back')">← 上一步</button>
-      <button type="button" class="ym-sticker" :disabled="aiBusy" @click="aiFill">
-        {{ aiBusy ? '补全中…' : '✦ AI 帮我补全' }}
-      </button>
       <button type="button" class="ym-stamp" :disabled="!canNext" @click="goNext">下一步：故事起点 →</button>
     </div>
 
@@ -188,8 +185,6 @@ const form = computed({
 
 const hobbyPool = ['健身', '游戏', '读书', '跑步', '音乐', '摄影', '做饭', '电影', '旅行'];
 const customHobbies = computed(() => form.value.爱好.filter(h => !hobbyPool.includes(h)));
-const aiBusy = ref(false);
-
 const ageError = computed(() => {
   const age = Number(form.value.年龄);
   if (!Number.isFinite(age) || age < 18) return '年龄须 ≥ 18';
@@ -228,23 +223,6 @@ function addCustomHobby() {
   patch({ 爱好: [...form.value.爱好, name.trim()].slice(0, 3) });
 }
 
-async function aiFill() {
-  aiBusy.value = true;
-  try {
-    // 占位：后续可接 generate / generateRaw 补全空字段
-    const defaults: Partial<ProfileForm> = {};
-    if (!form.value.外貌.trim()) defaults.外貌 = '短发，浅棕眼睛，表情有点拘谨';
-    if (!form.value.性格.trim()) defaults.性格 = '温和、观察力强，偶尔别扭';
-    if (!form.value.自述.trim()) defaults.自述 = '想把日子过成自己喜欢的样子';
-    if (!form.value.喜欢的类型.trim()) defaults.喜欢的类型 = '靠谱、会照顾人的类型';
-    if (form.value.爱好.length === 0) defaults.爱好 = ['读书', '音乐'];
-    if (!isHeightValid(form.value.身高)) defaults.身高 = HEIGHT_DEFAULT;
-    patch(defaults);
-    toastr.success('已用占位文案补全空字段（正式版将接 AI）');
-  } finally {
-    aiBusy.value = false;
-  }
-}
 
 function goNext() {
   if (!canNext.value) return;

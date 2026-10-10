@@ -53,13 +53,36 @@ const profile = ref<ProfileForm>({
   自述: store.data.主角.自述 || '',
 });
 
+const emptyRoomie = {
+  年级: '',
+  身份: '',
+  体型: '',
+  气质: '',
+  取向: '',
+  性格: [] as string[],
+  社团: '',
+  外貌关键词: '',
+  一句话: '',
+};
+const rawRoomie = store.data.日程.自定义室友 || ({} as any);
 const story = ref<StoryDraft>({
   主线: store.data.世界.主线 || '大学线',
   家里线子路线: store.data.世界.家里线子路线 || '无',
-  专业: store.data.世界.专业 || '未定通识',
+  专业: store.data.世界.专业 || store.data.主角.专业 || '未定专业',
   开局描述: store.data.世界.开局描述摘要 || '',
   室友选择: store.data.日程.室友选择 || 'Christian',
-  自定义室友: { ...store.data.日程.自定义室友 },
+  自定义室友: {
+    ...emptyRoomie,
+    ...rawRoomie,
+    性格: [...(rawRoomie.性格 || [])],
+    社团: rawRoomie.社团 || (rawRoomie as any).院系 || '',
+  },
+  宿舍: {
+    房型: store.data.日程.宿舍?.房型 || '双人',
+    寝室类型: store.data.日程.宿舍?.寝室类型 || '混合',
+    氛围: store.data.日程.宿舍?.氛围 || '',
+    带路人数: store.data.日程.宿舍?.带路人数 ?? 1,
+  },
 });
 
 function buildIdentityMessage(): string {
@@ -76,12 +99,17 @@ function buildIdentityMessage(): string {
     `主线：${s.主线}${s.主线 === '家里线' ? `／子路线：${s.家里线子路线}` : ''}`,
   ];
   if (s.主线 === '大学线') {
-    lines.push(`专业：${s.专业}｜室友：${s.室友选择}`);
-    if (s.室友选择 === '自定义') {
-      const r = s.自定义室友;
-      lines.push(
-        `自定义室友：${[r.年级, r.身份, r.体型, r.气质, r.取向, r.院系].filter(Boolean).join('／')}｜性格：${r.性格.join('、') || '无'}｜外貌：${r.外貌关键词 || '无'}｜印象：${r.一句话 || '无'}`,
-      );
+    const d = s.宿舍;
+    lines.push(`专业：${s.专业}｜宿舍：${d.房型}／${d.寝室类型}／带路${d.带路人数}`);
+    if (d.氛围) lines.push(`宿舍氛围：${d.氛围}`);
+    if (d.房型 === '双人') {
+      lines.push(`室友：${s.室友选择}`);
+      if (s.室友选择 === '自定义') {
+        const r = s.自定义室友;
+        lines.push(
+          `自定义室友：${[r.年级, r.身份, r.体型, r.气质, r.取向, r.社团].filter(Boolean).join('／')}｜性格：${r.性格.join('、') || '无'}｜外貌：${r.外貌关键词 || '无'}｜印象：${r.一句话 || '无'}`,
+        );
+      }
     }
   }
   lines.push(`开局描述：${s.开局描述}`);
@@ -109,15 +137,89 @@ async function onSubmit() {
 
     store.data.世界.主线 = s.主线;
     store.data.世界.家里线子路线 = s.主线 === '家里线' ? s.家里线子路线 : '无';
-    store.data.世界.专业 = s.主线 === '大学线' ? s.专业.trim() || '未定通识' : store.data.世界.专业;
+    const major = s.主线 === '大学线' ? s.专业.trim() || '未定专业' : store.data.世界.专业;
+    store.data.世界.专业 = major;
+    store.data.主角.专业 = major;
     store.data.世界.开局描述摘要 = s.开局描述.trim().slice(0, 500);
 
     if (s.主线 === '大学线') {
-      store.data.日程.室友选择 = s.室友选择;
-      store.data.日程.自定义室友 = { ...s.自定义室友 };
+      store.data.日程.宿舍 = { ...s.宿舍 };
+      if (s.宿舍.房型 === '双人') {
+        store.data.日程.室友选择 = s.室友选择;
+        store.data.日程.自定义室友 =
+          s.室友选择 === '自定义' ? { ...s.自定义室友 } : { ...emptyRoomie };
+      } else {
+        store.data.日程.室友选择 = 'Christian';
+        store.data.日程.自定义室友 = { ...emptyRoomie };
+      }
+      // 重要人物只保留所选室友，不塞双份
+      const people = store.data.重要人物 || {};
+      delete people.Christian;
+      delete people.Marky;
+      delete people['自定义室友'];
+      if (s.宿舍.房型 === '双人') {
+        if (s.室友选择 === 'Christian') {
+          people.Christian = {
+            ...(people.Christian || {}),
+            身份: '同届；宿舍室友',
+            关系: '室友',
+            好感: 0,
+            对你态度: '普通',
+            关系意向: '可攻略',
+            日常互动计数: 0,
+            当前状态: '同宿舍',
+            来源: '开局收录',
+            爱好: '',
+            常去地点: '',
+            工作地点: '',
+            家庭住址: '大学城宿舍',
+            外貌: '',
+            性格: '',
+            约定: {},
+          };
+        } else if (s.室友选择 === 'Marky') {
+          people.Marky = {
+            身份: '学长；宿舍室友',
+            关系: '室友',
+            好感: 0,
+            对你态度: '普通',
+            关系意向: '可攻略',
+            日常互动计数: 0,
+            当前状态: '同宿舍',
+            来源: '开局收录',
+            爱好: '',
+            常去地点: '',
+            工作地点: '',
+            家庭住址: '大学城宿舍',
+            外貌: '',
+            性格: '',
+            约定: {},
+          };
+        } else if (s.室友选择 === '自定义') {
+          const r = s.自定义室友;
+          people['室友'] = {
+            身份: [r.年级, r.身份, r.社团].filter(Boolean).join('·') || '自定义室友',
+            关系: '室友',
+            好感: 0,
+            对你态度: '普通',
+            关系意向: '可攻略',
+            日常互动计数: 0,
+            当前状态: '同宿舍',
+            来源: '开局收录',
+            爱好: '',
+            常去地点: '宿舍',
+            工作地点: '',
+            家庭住址: '大学城宿舍',
+            外貌: r.外貌关键词 || '',
+            性格: (r.性格 || []).join('、'),
+            约定: {},
+          };
+        }
+      }
+      store.data.重要人物 = people;
       store.data.世界.当前区域 = '大学城';
       store.data.世界.当前地点 = '宿舍';
-      store.data.主角.身份 = '霍大大一';
+      store.data.主角.身份 = `霍大大一·${major}`;
     } else if (s.主线 === '家里线') {
       store.data.世界.当前区域 = '家附近';
       store.data.世界.当前地点 = '家';

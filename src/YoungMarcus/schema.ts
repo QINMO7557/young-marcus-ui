@@ -3,7 +3,7 @@ export const Schema = z.object({
     .object({
       主线: z.enum(['家里线', '大学线', '自定义']).prefault('大学线'),
       家里线子路线: z.enum(['社区学院', '工作', '无']).prefault('无'),
-      专业: z.string().prefault('未定通识'),
+      专业: z.string().prefault('未定专业'),
       开局描述摘要: z.string().prefault(''),
       日期: z.string().prefault('9/1'),
       星期: z.enum(['周一', '周二', '周三', '周四', '周五', '周六', '周日']).prefault('周一'),
@@ -21,7 +21,7 @@ export const Schema = z.object({
     .prefault({
       主线: '大学线',
       家里线子路线: '无',
-      专业: '未定通识',
+      专业: '未定专业',
       开局描述摘要: '',
       日期: '9/1',
       星期: '周一',
@@ -52,6 +52,7 @@ export const Schema = z.object({
       性格: z.string().prefault(''),
       自述: z.string().prefault(''),
       身份: z.string().prefault('霍大大一'),
+      专业: z.string().prefault('未定专业'),
       金钱: z.coerce.number().transform(value => Math.min(99999, Math.max(0, value))).prefault(100),
       体力: z
         .object({
@@ -80,6 +81,7 @@ export const Schema = z.object({
       性格: '',
       自述: '',
       身份: '霍大大一',
+      专业: '未定专业',
       金钱: 100,
       体力: { 当前: 100, 上限: 100 },
       魅力: 21,
@@ -128,7 +130,7 @@ export const Schema = z.object({
           气质: z.string().prefault(''),
           取向: z.string().prefault(''),
           性格: z.array(z.string()).prefault([]),
-          院系: z.string().prefault(''),
+          社团: z.string().prefault(''),
           外貌关键词: z.string().prefault(''),
           一句话: z.string().prefault(''),
         })
@@ -139,10 +141,18 @@ export const Schema = z.object({
           气质: '',
           取向: '',
           性格: [],
-          院系: '',
+          社团: '',
           外貌关键词: '',
           一句话: '',
         }),
+      宿舍: z
+        .object({
+          房型: z.enum(['单人', '双人', '四人', '八人']).prefault('双人'),
+          寝室类型: z.string().prefault('混合'),
+          氛围: z.string().prefault(''),
+          带路人数: z.coerce.number().transform(value => Math.min(20, Math.max(0, Math.floor(value)))).prefault(0),
+        })
+        .prefault({ 房型: '双人', 寝室类型: '混合', 氛围: '', 带路人数: 0 }),
     })
     .prefault({
       课表: {},
@@ -156,10 +166,11 @@ export const Schema = z.object({
         气质: '',
         取向: '',
         性格: [],
-        院系: '',
+        社团: '',
         外貌关键词: '',
         一句话: '',
       },
+      宿舍: { 房型: '双人', 寝室类型: '混合', 氛围: '', 带路人数: 0 },
     }),
   重要人物: z
     .record(
@@ -171,6 +182,16 @@ export const Schema = z.object({
           好感: z.coerce.number().transform(value => Math.min(100, Math.max(0, value))).prefault(0),
           外貌: z.string().prefault(''),
           性格: z.string().prefault(''),
+          爱好: z.string().prefault(''),
+          常去地点: z.string().prefault(''),
+          工作地点: z.string().prefault(''),
+          家庭住址: z.string().prefault(''),
+          对你态度: z.enum(['冷淡', '普通', '在意', '感兴趣']).prefault('普通'),
+          关系意向: z.enum(['可攻略', '仅朋友']).prefault('可攻略'),
+          日常互动计数: z.coerce
+            .number()
+            .transform(value => Math.min(5, Math.max(0, Math.floor(value))))
+            .prefault(0),
           当前状态: z.string().prefault(''),
           约定: z.record(z.string().describe('约定名'), z.string()).prefault({}),
           来源: z.string().prefault(''),
@@ -181,6 +202,13 @@ export const Schema = z.object({
           好感: 0,
           外貌: '',
           性格: '',
+          爱好: '',
+          常去地点: '',
+          工作地点: '',
+          家庭住址: '',
+          对你态度: '普通',
+          关系意向: '可攻略',
+          日常互动计数: 0,
           当前状态: '',
           约定: {},
           来源: '',

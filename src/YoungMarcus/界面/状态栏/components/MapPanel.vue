@@ -14,13 +14,13 @@
         :class="{ on: active === tab.id }"
         @click="switchTab(tab.id)"
       >
-        <i v-if="tab.icon" :class="tab.icon" aria-hidden="true" />
+        <i :class="tab.icon" aria-hidden="true" />
         {{ tab.label }}
       </button>
     </nav>
 
     <div v-if="active === '家附近' || active === '大学城'" class="map-stage ym-sheet">
-      <div class="map" :style="{ backgroundImage: `url(${mapUrl})` }">
+      <div class="map" :style="{ backgroundImage: mapUrl ? `url(${mapUrl})` : undefined }">
         <button
           v-for="(pin, i) in pins"
           :key="pin.name"
@@ -43,15 +43,27 @@
       </div>
     </div>
 
-    <div v-else class="list-stage ym-sheet ym-ruled">
-      <ul v-if="listEntries.length">
-        <li v-for="row in listEntries" :key="row.name">
-          <b>{{ row.name }}</b>
-          <span>{{ row.desc }}</span>
-          <button type="button" class="ym-sticker go-sm" @click="goTo(row.name)">前往 →</button>
-        </li>
-      </ul>
-      <p v-else class="empty">尚未解锁该区域的地点。</p>
+    <div v-else class="map-stage ym-sheet travel-stage">
+      <div class="map travel-map">
+        <div class="travel-scroll">
+          <template v-for="(sec, si) in travelSections" :key="sec.id">
+            <div v-if="si > 0" class="sep" role="separator" />
+            <h4 class="sec-title">
+              <i :class="sec.icon" aria-hidden="true" />
+              {{ sec.label }}
+            </h4>
+            <ul v-if="sec.rows.length">
+              <li v-for="row in sec.rows" :key="sec.id + row.name">
+                <i :class="sec.rowIcon" aria-hidden="true" />
+                <b>{{ row.name }}</b>
+                <span>{{ row.desc }}</span>
+                <button type="button" class="ym-sticker go-sm" @click="goTo(row.name)">前往 →</button>
+              </li>
+            </ul>
+            <p v-else class="empty">尚未解锁{{ sec.label }}地点。</p>
+          </template>
+        </div>
+      </div>
     </div>
 
     <p class="hint"><i class="fa-solid fa-location-dot" aria-hidden="true" /> 点击地点，把目的地写进对话框。</p>
@@ -67,23 +79,42 @@ const store = useDataStore();
 const tabs = [
   { id: '家附近', label: '家附近', icon: 'fa-solid fa-house' },
   { id: '大学城', label: '大学城', icon: 'fa-solid fa-graduation-cap' },
-  { id: '外出', label: '外出', icon: '' },
-  { id: '远行', label: '远行', icon: '' },
-  { id: '旅途', label: '旅途', icon: '' },
+  { id: '远途', label: '外出·远行·旅途', icon: 'fa-solid fa-route' },
 ] as const;
 
 type TabId = (typeof tabs)[number]['id'];
 type Pin = { name: string; x: number; y: number; desc: string; color: string };
 
-const active = ref<TabId>((store.data.世界.当前区域 as TabId) || '大学城');
+const region = store.data.世界.当前区域;
+const active = ref<TabId>(
+  region === '家附近' || region === '大学城' ? region : region === '外出' || region === '远行' || region === '旅途' ? '远途' : '大学城',
+);
 const selected = ref<Pin | null>(null);
+const preloaded = ref(false);
+
+onMounted(() => {
+  const urls = [mapAsset(MAP_FILES.home), mapAsset(MAP_FILES.city), mapAsset(MAP_FILES.overview)];
+  let left = urls.length;
+  urls.forEach(src => {
+    const img = new Image();
+    img.onload = img.onerror = () => {
+      left -= 1;
+      if (left <= 0) preloaded.value = true;
+    };
+    img.src = src;
+  });
+});
 
 function switchTab(id: TabId) {
   active.value = id;
   selected.value = null;
 }
 
-const mapUrl = computed(() => mapAsset(active.value === '家附近' ? MAP_FILES.home : MAP_FILES.city));
+const mapUrl = computed(() => {
+  if (active.value === '家附近') return mapAsset(MAP_FILES.home);
+  if (active.value === '大学城') return mapAsset(MAP_FILES.city);
+  return '';
+});
 
 const C = { home: '#c0392b', life: '#2f6fb0', fun: '#7b4fa0', nature: '#2f8a5a', work: '#d08a2a' };
 
@@ -120,25 +151,39 @@ const pins = computed(() => (active.value === '家附近' ? HOME_PINS : CITY_PIN
 
 function isHere(name: string) {
   const here = store.data.世界.当前地点 || '';
-  if (store.data.世界.当前区域 !== active.value || !here) return false;
+  const area = store.data.世界.当前区域 || '';
+  if (!here) return false;
+  if (active.value === '家附近' && area !== '家附近') return false;
+  if (active.value === '大学城' && area !== '大学城') return false;
   return here === name || name.includes(here) || here.includes(name);
 }
 
-const listEntries = computed(() => {
-  if (active.value === '外出') {
-    return Object.entries(store.data.地图解锁.外出 || {}).map(([name, desc]) => ({ name, desc }));
-  }
-  if (active.value === '远行') {
-    return Object.entries(store.data.地图解锁.远行 || {}).map(([name, desc]) => ({ name, desc }));
-  }
-  if (active.value === '旅途') {
-    return Object.entries(store.data.地图解锁.旅途 || {}).map(([name, v]) => ({
+const travelSections = computed(() => [
+  {
+    id: '外出',
+    label: '外出',
+    icon: 'fa-solid fa-person-walking',
+    rowIcon: 'fa-solid fa-shoe-prints',
+    rows: Object.entries(store.data.地图解锁.外出 || {}).map(([name, desc]) => ({ name, desc: String(desc) })),
+  },
+  {
+    id: '远行',
+    label: '远行',
+    icon: 'fa-solid fa-car',
+    rowIcon: 'fa-solid fa-road',
+    rows: Object.entries(store.data.地图解锁.远行 || {}).map(([name, desc]) => ({ name, desc: String(desc) })),
+  },
+  {
+    id: '旅途',
+    label: '旅途',
+    icon: 'fa-solid fa-plane',
+    rowIcon: 'fa-solid fa-suitcase',
+    rows: Object.entries(store.data.地图解锁.旅途 || {}).map(([name, v]) => ({
       name,
       desc: [v.季节或时间, v.备忘].filter(Boolean).join(' · ') || '去过',
-    }));
-  }
-  return [];
-});
+    })),
+  },
+]);
 
 function fillInput(text: string) {
   const docs: Document[] = [document];
@@ -228,6 +273,67 @@ function goTo(name: string) {
   margin: 0 auto;
   aspect-ratio: 942 / 1670;
   background: #d9c7a8 center / 100% 100% no-repeat;
+}
+.travel-map {
+  background:
+    linear-gradient(180deg, rgba(246, 238, 220, 0.92), rgba(232, 220, 196, 0.95)),
+    #d9c7a8;
+  overflow: hidden;
+}
+.travel-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 12px 18px;
+  scrollbar-width: thin;
+}
+.sec-title {
+  font-family: var(--font-title);
+  font-size: 16px;
+  margin: 4px 0 8px;
+  color: var(--c-text);
+}
+.sec-title i {
+  margin-right: 4px;
+  color: var(--c-primary);
+}
+.sep {
+  height: 0;
+  border-top: 1.5px dashed rgba(90, 65, 40, 0.35);
+  margin: 12px 0;
+}
+.travel-scroll ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.travel-scroll li {
+  display: grid;
+  grid-template-columns: 18px auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  font-family: var(--font-hand);
+  font-size: 13px;
+  background: rgba(255, 250, 240, 0.75);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.travel-scroll li span {
+  color: var(--c-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.go-sm {
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.empty {
+  font-family: var(--font-hand);
+  color: var(--c-text-muted);
+  margin-bottom: 6px;
 }
 
 .pin {
@@ -327,35 +433,6 @@ function goTo(name: string) {
 .go {
   padding: 6px 14px;
   font-size: 14px;
-}
-
-.list-stage {
-  padding: 10px 12px 10px 40px;
-  min-height: 140px;
-}
-.list-stage ul {
-  list-style: none;
-}
-.list-stage li {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  min-height: 32px;
-  font-family: var(--font-hand);
-  font-size: 13px;
-}
-.list-stage li span {
-  flex: 1;
-  color: var(--c-text-muted);
-}
-.go-sm {
-  padding: 2px 10px;
-  font-size: 12px;
-}
-.empty {
-  font-family: var(--font-hand);
-  color: var(--c-text-muted);
-  line-height: 32px;
 }
 
 .hint {
