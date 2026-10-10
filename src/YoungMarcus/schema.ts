@@ -149,10 +149,22 @@ export const Schema = z.object({
         .object({
           房型: z.enum(['单人', '双人', '四人', '八人']).prefault('双人'),
           寝室类型: z.string().prefault('混合'),
-          氛围: z.string().prefault(''),
-          带路人数: z.coerce.number().transform(value => Math.min(20, Math.max(0, Math.floor(value)))).prefault(0),
+          氛围: z.string().prefault('相处融洽'),
+          环境: z.array(z.string()).prefault([]),
+          备注: z.string().prefault(''),
+          开局好友: z
+            .array(
+              z
+                .object({
+                  属性: z.array(z.string()).prefault([]),
+                  备注: z.string().prefault(''),
+                })
+                .prefault({ 属性: [], 备注: '' }),
+            )
+            .transform(value => value.slice(0, 2))
+            .prefault([]),
         })
-        .prefault({ 房型: '双人', 寝室类型: '混合', 氛围: '', 带路人数: 0 }),
+        .prefault({ 房型: '双人', 寝室类型: '混合', 氛围: '相处融洽', 环境: [], 备注: '', 开局好友: [] }),
     })
     .prefault({
       课表: {},
@@ -170,7 +182,7 @@ export const Schema = z.object({
         外貌关键词: '',
         一句话: '',
       },
-      宿舍: { 房型: '双人', 寝室类型: '混合', 氛围: '', 带路人数: 0 },
+      宿舍: { 房型: '双人', 寝室类型: '混合', 氛围: '相处融洽', 环境: [], 备注: '', 开局好友: [] },
     }),
   重要人物: z
     .record(

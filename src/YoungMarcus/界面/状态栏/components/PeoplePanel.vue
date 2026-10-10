@@ -43,7 +43,28 @@
       <button type="button" class="x" aria-label="关闭" @click="closeDetail">×</button>
       <h4 class="ym-title">{{ detail.name }}</h4>
       <p class="line"><b>关系</b>{{ detail.关系 || '—' }} · {{ detail.身份 || '—' }}</p>
-      <p class="line"><b>好感</b>{{ displayAff(detail.好感) }} · {{ detail.对你态度 || '普通' }} · {{ detail.关系意向 || '可攻略' }}</p>
+      <p class="line"><b>好感</b>{{ displayAff(detail.好感) }} · {{ detail.对你态度 || '普通' }}</p>
+      <div class="field-intent">
+        <span>关系意向</span>
+        <div class="pills">
+          <button
+            type="button"
+            class="pill"
+            :class="{ on: (detail.关系意向 || '可攻略') === '可攻略' }"
+            @click="setIntent('可攻略')"
+          >
+            可攻略
+          </button>
+          <button
+            type="button"
+            class="pill"
+            :class="{ on: detail.关系意向 === '仅朋友' }"
+            @click="setIntent('仅朋友')"
+          >
+            仅朋友
+          </button>
+        </div>
+      </div>
       <p v-if="detail.爱好" class="line"><b>爱好</b>{{ detail.爱好 }}</p>
       <p v-if="detail.常去地点" class="line"><b>常去</b>{{ detail.常去地点 }}</p>
       <p v-if="detail.工作地点" class="line"><b>工作</b>{{ detail.工作地点 }}</p>
@@ -63,6 +84,9 @@
       <p class="badge-inline">尚未接触</p>
       <p class="line"><b>关系</b>{{ codexDetail.关系 }}</p>
       <p class="line"><b>身份</b>{{ codexDetail.简介 }}</p>
+      <p class="line"><b>体型</b>{{ codexDetail.体型 }}</p>
+      <p class="line"><b>取向</b>{{ codexDetail.取向 }}</p>
+      <p class="line"><b>爱好</b>{{ codexDetail.爱好 }}</p>
       <p class="line"><b>常去</b>{{ codexDetail.常去地点 }}</p>
       <p class="line"><b>遇见</b>{{ codexDetail.触发提示 }}</p>
     </aside>
@@ -153,6 +177,16 @@ function closeDetail() {
 function displayAff(n?: number) {
   if (n == null) return 0;
   return Number.isInteger(n) ? n : Math.round(n * 10) / 10;
+}
+
+function setIntent(intent: '可攻略' | '仅朋友') {
+  if (!detail.value) return;
+  const name = detail.value.name;
+  const people = store.data.重要人物 || {};
+  if (!people[name]) return;
+  people[name].关系意向 = intent;
+  store.data.重要人物 = { ...people };
+  detail.value = { ...detail.value, 关系意向: intent };
 }
 </script>
 
@@ -302,5 +336,36 @@ h3 i {
 .empty {
   font-family: var(--font-hand);
   color: var(--c-text-muted);
+}
+.field-intent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 6px;
+}
+.field-intent > span {
+  font-family: var(--font-hand);
+  font-size: 12px;
+  color: var(--c-text-muted);
+  font-weight: 700;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pill {
+  border: none;
+  background: rgba(220, 210, 190, 0.55);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-hand);
+  font-size: 12.5px;
+  color: var(--c-text);
+  cursor: pointer;
+}
+.pill.on {
+  background: var(--c-primary);
+  color: var(--c-primary-ink);
 }
 </style>

@@ -80,8 +80,16 @@ const story = ref<StoryDraft>({
   宿舍: {
     房型: store.data.日程.宿舍?.房型 || '双人',
     寝室类型: store.data.日程.宿舍?.寝室类型 || '混合',
-    氛围: store.data.日程.宿舍?.氛围 || '',
-    带路人数: store.data.日程.宿舍?.带路人数 ?? 1,
+    氛围: (() => {
+      const v = store.data.日程.宿舍?.氛围 || '相处融洽';
+      return v;
+    })(),
+    环境: [...(store.data.日程.宿舍?.环境 || [])],
+    备注: store.data.日程.宿舍?.备注 || '',
+    开局好友: (store.data.日程.宿舍?.开局好友 || []).map((f: any) => ({
+      属性: [...(f?.属性 || [])],
+      备注: f?.备注 || '',
+    })),
   },
 });
 
@@ -100,8 +108,18 @@ function buildIdentityMessage(): string {
   ];
   if (s.主线 === '大学线') {
     const d = s.宿舍;
-    lines.push(`专业：${s.专业}｜宿舍：${d.房型}／${d.寝室类型}／带路${d.带路人数}`);
+    lines.push(`专业：${s.专业}｜宿舍：${d.房型}／${d.寝室类型}`);
     if (d.氛围) lines.push(`宿舍氛围：${d.氛围}`);
+    if (d.环境?.length) lines.push(`寝室环境：${d.环境.join('、')}${d.备注 ? `（${d.备注}）` : ''}`);
+    else if (d.备注) lines.push(`寝室环境备注：${d.备注}`);
+    if (d.开局好友?.length) {
+      lines.push(
+        `开局好友：` +
+          d.开局好友
+            .map((f, i) => `#${i + 1}[${(f.属性 || []).join('、') || '无标签'}${f.备注 ? `｜${f.备注}` : ''}]`)
+            .join('；'),
+      );
+    } else lines.push('开局好友：0');
     if (d.房型 === '双人') {
       lines.push(`室友：${s.室友选择}`);
       if (s.室友选择 === '自定义') {
@@ -143,7 +161,14 @@ async function onSubmit() {
     store.data.世界.开局描述摘要 = s.开局描述.trim().slice(0, 500);
 
     if (s.主线 === '大学线') {
-      store.data.日程.宿舍 = { ...s.宿舍 };
+      store.data.日程.宿舍 = {
+        房型: s.宿舍.房型,
+        寝室类型: s.宿舍.寝室类型,
+        氛围: s.宿舍.氛围,
+        环境: [...(s.宿舍.环境 || [])],
+        备注: s.宿舍.备注 || '',
+        开局好友: (s.宿舍.开局好友 || []).map(f => ({ 属性: [...(f.属性 || [])], 备注: f.备注 || '' })),
+      };
       if (s.宿舍.房型 === '双人') {
         store.data.日程.室友选择 = s.室友选择;
         store.data.日程.自定义室友 =

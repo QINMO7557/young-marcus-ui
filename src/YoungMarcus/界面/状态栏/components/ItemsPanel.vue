@@ -11,50 +11,12 @@
     </ul>
     <p v-else class="empty">口袋空空。</p>
 
-    <div class="tools">
-      <button type="button" class="ym-sticker" @click="showSchedule = !showSchedule">
-        {{ showSchedule ? '收起课表' : '完整课表' }}
-      </button>
-      <button type="button" class="ym-sticker" @click="showJob = !showJob">
-        {{ showJob ? '收起打工' : '打工表' }}
-      </button>
-    </div>
-
-    <div v-if="showSchedule" class="sheet ym-ruled">
-      <h4 class="ym-title">本周课表</h4>
-      <template v-if="weekDays.length">
-        <div v-for="day in weekDays" :key="day" class="day">
-          <b>{{ day }}</b>
-          <ul>
-            <li v-for="c in coursesOf(day)" :key="c.name">
-              <span class="t">{{ c.开始时刻 }}</span>
-              {{ c.name }}
-              <small>{{ [c.地点, c.教师].filter(Boolean).join(' · ') }} · {{ c.时长分钟 }}min</small>
-            </li>
-          </ul>
-        </div>
-      </template>
-      <p v-else class="empty">暂无课表。</p>
-    </div>
-
-    <div v-if="showJob" class="sheet ym-ruled">
-      <h4 class="ym-title">打工</h4>
-      <p class="job">岗位：{{ store.data.日程.兼职岗位 || '无' }}</p>
-      <ul v-if="jobToday.length">
-        <li v-for="j in jobToday" :key="j.key">
-          <span class="t">{{ j.时间 }}</span> {{ j.key }}
-          <small>{{ [j.内容, j.地点].filter(Boolean).join(' · ') }}</small>
-        </li>
-      </ul>
-      <p v-else class="empty">今日日程里没有打工相关项。</p>
-    </div>
-
     <div v-if="phoneOpen" class="phone ym-sheet ym-tape" style="--tx: 20%; --ty: -8px">
       <button type="button" class="x" @click="phoneOpen = false">×</button>
       <h4 class="ym-title"><i class="fa-solid fa-address-book" aria-hidden="true" /> 通讯录</h4>
-      <ul>
+      <ul class="contacts">
         <li v-for="p in contacts" :key="p.name">
-          <span>{{ p.name }} · {{ p.关系 || p.身份 || '' }}</span>
+          <span class="cname">{{ p.name }} · {{ p.关系 || p.身份 || '' }}</span>
           <span class="acts">
             <button type="button" class="ym-sticker tiny" @click="fillInput(`打电话给${p.name}`)">打电话</button>
             <button type="button" class="ym-sticker tiny" @click="fillInput(`发消息给${p.name}`)">发消息</button>
@@ -71,26 +33,7 @@ import { useDataStore } from '../../store';
 const store = useDataStore();
 
 const items = computed(() => Object.entries(store.data.道具 || {}).map(([name, v]) => ({ name, ...v })));
-const showSchedule = ref(false);
-const showJob = ref(false);
 const phoneOpen = ref(false);
-
-const weekOrder = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] as const;
-const weekDays = computed(() => weekOrder.filter(d => Object.keys(store.data.日程.课表?.[d] || {}).length));
-
-function coursesOf(day: string) {
-  const rec = store.data.日程.课表?.[day as keyof typeof store.data.日程.课表] || {};
-  return Object.entries(rec)
-    .map(([name, v]) => ({ name, ...v }))
-    .sort((a, b) => (a.开始时刻 || '').localeCompare(b.开始时刻 || ''));
-}
-
-const jobToday = computed(() =>
-  Object.entries(store.data.日程.今日日程 || {})
-    .map(([key, v]) => ({ key, ...v }))
-    .filter(x => /打工|兼职|班次|岗位/.test(x.key + (x.内容 || '')))
-    .sort((a, b) => (a.时间 || '').localeCompare(b.时间 || '')),
-);
 
 const contacts = computed(() => {
   const roomie = store.data.日程.室友选择;
@@ -253,11 +196,11 @@ small {
   background: transparent;
   font-size: 18px;
 }
-.phone ul {
+.phone ul.contacts {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
 }
 .phone li {
   display: flex;
@@ -265,7 +208,18 @@ small {
   gap: 8px;
   align-items: center;
   font-family: var(--font-hand);
-  font-size: 13px;
+  font-size: 12.5px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(90, 70, 40, 0.22);
+}
+.phone li:last-child {
+  border-bottom: none;
+}
+.cname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .acts {
   display: flex;

@@ -289,8 +289,10 @@
         "宿舍": {
           "房型": "双人",
           "寝室类型": "混合",
-          "氛围": "",
-          "带路人数": 0
+          "氛围": "相处融洽",
+          "环境": [],
+          "备注": "",
+          "开局好友": []
         }
       },
       "type": "object",
@@ -452,8 +454,10 @@
           "default": {
             "房型": "双人",
             "寝室类型": "混合",
-            "氛围": "",
-            "带路人数": 0
+            "氛围": "相处融洽",
+            "环境": [],
+            "备注": "",
+            "开局好友": []
           },
           "type": "object",
           "properties": {
@@ -472,12 +476,43 @@
               "type": "string"
             },
             "氛围": {
+              "default": "相处融洽",
+              "type": "string"
+            },
+            "环境": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "备注": {
               "default": "",
               "type": "string"
             },
-            "带路人数": {
-              "default": 0,
-              "type": "number"
+            "开局好友": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "default": {
+                  "属性": [],
+                  "备注": ""
+                },
+                "type": "object",
+                "properties": {
+                  "属性": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "备注": {
+                    "default": "",
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         }

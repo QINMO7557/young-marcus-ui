@@ -127,15 +127,83 @@
             />
           </label>
 
-          <label class="field">
-            <span>氛围</span>
-            <input v-model="draft.宿舍.氛围" class="ym-line-input" type="text" placeholder="如：走廊放音乐、箱子还没拆完" />
-          </label>
+          <div class="split-2">
+            <label class="field">
+              <span>氛围</span>
+              <select class="ym-line-input" :value="vibeSelect" @change="onVibeSelect">
+                <option v-for="v in vibePresets" :key="v" :value="v">{{ v }}</option>
+                <option value="__custom__">其他（自填）</option>
+              </select>
+              <input
+                v-if="vibeSelect === '__custom__'"
+                v-model="draft.宿舍.氛围"
+                class="ym-line-input"
+                type="text"
+                placeholder="如：走廊放音乐、箱子还没拆完"
+              />
+              <small class="hint-line">{{ vibeHint }}</small>
+            </label>
 
-          <label class="field">
-            <span>带路人数</span>
-            <input v-model.number="draft.宿舍.带路人数" class="ym-line-input short" type="number" min="0" max="20" />
-          </label>
+            <div class="field">
+              <span>寝室环境</span>
+              <div class="pills">
+                <button
+                  v-for="tag in envTags"
+                  :key="tag"
+                  type="button"
+                  class="ym-pill"
+                  :class="{ on: draft.宿舍.环境.includes(tag) }"
+                  @click="toggleEnv(tag)"
+                >
+                  {{ tag }}
+                </button>
+              </div>
+              <input
+                v-model="draft.宿舍.备注"
+                class="ym-line-input"
+                type="text"
+                placeholder="环境备注（可选）"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <span>开局好友</span>
+            <div class="pills">
+              <button
+                v-for="n in friendCounts"
+                :key="n"
+                type="button"
+                class="ym-pill"
+                :class="{ on: draft.宿舍.开局好友.length === n }"
+                @click="setFriendCount(n)"
+              >
+                {{ n === 0 ? '0 人' : n + ' 人' }}
+              </button>
+            </div>
+            <div v-for="(f, i) in draft.宿舍.开局好友" :key="i" class="friend-card">
+              <p class="friend-title">好友 {{ i + 1 }}</p>
+              <div class="pills">
+                <button
+                  v-for="tag in friendTags"
+                  :key="tag"
+                  type="button"
+                  class="ym-pill"
+                  :class="{ on: f.属性.includes(tag) }"
+                  @click="toggleFriendTag(i, tag)"
+                >
+                  {{ tag }}
+                </button>
+              </div>
+              <input
+                :value="f.备注"
+                class="ym-line-input"
+                type="text"
+                placeholder="短备注（可选）"
+                @input="onFriendNote(i, $event)"
+              />
+            </div>
+          </div>
 
           <div v-if="draft.宿舍.房型 === '双人'" class="field">
             <span>室友三选（双人间）</span>
@@ -155,33 +223,79 @@
 
           <div v-if="draft.宿舍.房型 === '双人' && draft.室友选择 === '自定义'" class="custom-roomie">
             <div class="row">
-              <input v-model="draft.自定义室友.年级" class="ym-line-input" list="rm-grade" placeholder="年级" />
-              <input v-model="draft.自定义室友.身份" class="ym-line-input" list="rm-role" placeholder="身份" />
+              <label class="mini">
+                <span>年级</span>
+                <select class="ym-line-input" :value="roomieSelect('年级')" @change="onRoomieSelect('年级', $event)">
+                  <option v-for="x in pools.年级" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('年级') === '__custom__'" v-model="draft.自定义室友.年级" class="ym-line-input" placeholder="自填年级" />
+              </label>
+              <label class="mini">
+                <span>身份</span>
+                <select class="ym-line-input" :value="roomieSelect('身份')" @change="onRoomieSelect('身份', $event)">
+                  <option v-for="x in pools.身份" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('身份') === '__custom__'" v-model="draft.自定义室友.身份" class="ym-line-input" placeholder="自填身份" />
+              </label>
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.体型" class="ym-line-input" list="rm-body" placeholder="体型" />
-              <input v-model="draft.自定义室友.气质" class="ym-line-input" list="rm-vibe" placeholder="气质" />
+              <label class="mini">
+                <span>体型</span>
+                <select class="ym-line-input" :value="roomieSelect('体型')" @change="onRoomieSelect('体型', $event)">
+                  <option v-for="x in pools.体型" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('体型') === '__custom__'" v-model="draft.自定义室友.体型" class="ym-line-input" placeholder="自填体型" />
+              </label>
+              <label class="mini">
+                <span>气质</span>
+                <select class="ym-line-input" :value="roomieSelect('气质')" @change="onRoomieSelect('气质', $event)">
+                  <option v-for="x in pools.气质" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('气质') === '__custom__'" v-model="draft.自定义室友.气质" class="ym-line-input" placeholder="自填气质" />
+              </label>
             </div>
             <div class="row">
-              <input v-model="draft.自定义室友.取向" class="ym-line-input" list="rm-orient" placeholder="取向" />
-              <input v-model="draft.自定义室友.社团" class="ym-line-input" list="rm-club" placeholder="社团（可自填）" />
+              <label class="mini">
+                <span>取向</span>
+                <select class="ym-line-input" :value="roomieSelect('取向')" @change="onRoomieSelect('取向', $event)">
+                  <option v-for="x in pools.取向" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('取向') === '__custom__'" v-model="draft.自定义室友.取向" class="ym-line-input" placeholder="自填取向" />
+              </label>
+              <label class="mini">
+                <span>社团</span>
+                <select class="ym-line-input" :value="roomieSelect('社团')" @change="onRoomieSelect('社团', $event)">
+                  <option v-for="x in pools.社团" :key="x" :value="x">{{ x }}</option>
+                  <option value="__custom__">其他</option>
+                </select>
+                <input v-if="roomieSelect('社团') === '__custom__'" v-model="draft.自定义室友.社团" class="ym-line-input" placeholder="自填社团" />
+              </label>
             </div>
             <input v-model="draft.自定义室友.外貌关键词" class="ym-line-input" placeholder="外貌关键词" />
-            <input
-              :value="draft.自定义室友.性格.join('、')"
-              class="ym-line-input"
-              placeholder="性格（顿号分隔）"
-              @input="onTraits"
-            />
+            <div class="field compact">
+              <span>性格（可多选）</span>
+              <div class="pills">
+                <button
+                  v-for="tag in traitPool"
+                  :key="tag"
+                  type="button"
+                  class="ym-pill"
+                  :class="{ on: draft.自定义室友.性格.includes(tag) }"
+                  @click="toggleTrait(tag)"
+                >
+                  {{ tag }}
+                </button>
+              </div>
+            </div>
             <input v-model="draft.自定义室友.一句话" class="ym-line-input" placeholder="一句话印象" />
             <button type="button" class="ym-sticker small" @click="rollRoommate">🎲 骰子随机</button>
-            <datalist id="rm-grade"><option v-for="x in pools.年级" :key="x" :value="x" /></datalist>
-            <datalist id="rm-role"><option v-for="x in pools.身份" :key="x" :value="x" /></datalist>
-            <datalist id="rm-body"><option v-for="x in pools.体型" :key="x" :value="x" /></datalist>
-            <datalist id="rm-vibe"><option v-for="x in pools.气质" :key="x" :value="x" /></datalist>
-            <datalist id="rm-orient"><option v-for="x in pools.取向" :key="x" :value="x" /></datalist>
-            <datalist id="rm-club"><option v-for="x in pools.社团" :key="x" :value="x" /></datalist>
           </div>
+
         </template>
 
         <template v-else>
@@ -240,7 +354,9 @@ export type StoryDraft = {
     房型: '单人' | '双人' | '四人' | '八人';
     寝室类型: string;
     氛围: string;
-    带路人数: number;
+    环境: string[];
+    备注: string;
+    开局好友: { 属性: string[]; 备注: string }[];
   };
 };
 
@@ -292,10 +408,24 @@ const dormKinds = [
   '学科·艺术',
   '学科·体育',
 ];
+const vibePresets = ['相处融洽', '关系普通', '各忙各的', '有点小圈子'];
+const envTags = ['干净', '杂乱', '体味重', '东西多', '香氛/洗衣液味', '安静', '常有人串门'];
+const friendCounts = [0, 1, 2] as const;
+const friendTags = ['爱玩', '学习好', '运动员', '话多', '安静靠谱', '带你认识人'];
+const traitPool = ['话多', '热心', '沉默', '观察力强', '直率', '护短', '洁癖', '随性'];
 const majorSelect = computed(() => (majors.includes(draft.value.专业) ? draft.value.专业 : '__custom__'));
 const dormKindSelect = computed(() =>
   dormKinds.includes(draft.value.宿舍.寝室类型) ? draft.value.宿舍.寝室类型 : '__custom__',
 );
+const vibeSelect = computed(() =>
+  vibePresets.includes(draft.value.宿舍.氛围) ? draft.value.宿舍.氛围 : '__custom__',
+);
+const vibeHint = computed(() => {
+  const kind = draft.value.宿舍.寝室类型 || '';
+  if (kind.startsWith('学科')) return '同系寝室：更易聊课业与社团';
+  if (kind === '混合') return '混合寝室：各系混住，节奏更杂';
+  return '可按寝室类型自行想象相处感';
+});
 function onMajorSelect(e: Event) {
   const v = (e.target as HTMLSelectElement).value;
   if (v === '__custom__') patch({ 专业: draft.value.专业 && !majors.includes(draft.value.专业) ? draft.value.专业 : '' });
@@ -308,6 +438,40 @@ function onDormKindSelect(e: Event) {
     patch({ 宿舍: { ...draft.value.宿舍, 寝室类型: dormKinds.includes(cur) ? '' : cur } });
   } else patch({ 宿舍: { ...draft.value.宿舍, 寝室类型: v } });
 }
+function onVibeSelect(e: Event) {
+  const v = (e.target as HTMLSelectElement).value;
+  if (v === '__custom__') {
+    const cur = draft.value.宿舍.氛围;
+    patch({ 宿舍: { ...draft.value.宿舍, 氛围: vibePresets.includes(cur) ? '' : cur } });
+  } else patch({ 宿舍: { ...draft.value.宿舍, 氛围: v } });
+}
+function toggleEnv(tag: string) {
+  const cur = [...(draft.value.宿舍.环境 || [])];
+  const i = cur.indexOf(tag);
+  if (i >= 0) cur.splice(i, 1);
+  else cur.push(tag);
+  patch({ 宿舍: { ...draft.value.宿舍, 环境: cur } });
+}
+function setFriendCount(n: number) {
+  const cur = [...(draft.value.宿舍.开局好友 || [])];
+  while (cur.length < n) cur.push({ 属性: [], 备注: '' });
+  patch({ 宿舍: { ...draft.value.宿舍, 开局好友: cur.slice(0, n) } });
+}
+function toggleFriendTag(i: number, tag: string) {
+  const friends = draft.value.宿舍.开局好友.map(f => ({ ...f, 属性: [...f.属性] }));
+  const f = friends[i];
+  if (!f) return;
+  const j = f.属性.indexOf(tag);
+  if (j >= 0) f.属性.splice(j, 1);
+  else f.属性.push(tag);
+  patch({ 宿舍: { ...draft.value.宿舍, 开局好友: friends } });
+}
+function onFriendNote(i: number, e: Event) {
+  const friends = draft.value.宿舍.开局好友.map(f => ({ ...f, 属性: [...f.属性] }));
+  if (!friends[i]) return;
+  friends[i]!.备注 = (e.target as HTMLInputElement).value;
+  patch({ 宿舍: { ...draft.value.宿舍, 开局好友: friends } });
+}
 const pools = {
   年级: ['大一同届', '大二学长', '大三学长', '交换生'],
   身份: ['普通学生', '运动员', '社团干部', '艺术生', '理工宅', '兄弟会边缘'],
@@ -316,6 +480,27 @@ const pools = {
   取向: ['男同', '双', '直男好奇', '未确定'],
   社团: ['无', '桌游社', '摄影社', '足球社', '合唱团', '志愿者协会', '电竞社'],
 };
+type RoomieKey = '年级' | '身份' | '体型' | '气质' | '取向' | '社团';
+function roomieSelect(key: RoomieKey) {
+  const pool = pools[key];
+  const cur = draft.value.自定义室友[key];
+  return pool.includes(cur) ? cur : '__custom__';
+}
+function onRoomieSelect(key: RoomieKey, e: Event) {
+  const v = (e.target as HTMLSelectElement).value;
+  const pool = pools[key];
+  if (v === '__custom__') {
+    const cur = draft.value.自定义室友[key];
+    patch({ 自定义室友: { ...draft.value.自定义室友, [key]: pool.includes(cur) ? '' : cur } });
+  } else patch({ 自定义室友: { ...draft.value.自定义室友, [key]: v } });
+}
+function toggleTrait(tag: string) {
+  const cur = [...(draft.value.自定义室友.性格 || [])];
+  const i = cur.indexOf(tag);
+  if (i >= 0) cur.splice(i, 1);
+  else cur.push(tag);
+  patch({ 自定义室友: { ...draft.value.自定义室友, 性格: cur } });
+}
 
 const DEFAULT_HOME_COLLEGE =
   '9 月 1 日清晨，搬到海鸥湾镇后不久。Milo 抢着浴室要去社区学院上课，餐桌上是你的社区学院课表（霍大附属）。爸爸匆匆去新公司报到。你住在家里走读，周末也可以坐巴士进城看看大学城。隔壁邻居刚好来敲门借牛奶。';
@@ -357,11 +542,9 @@ function selectCustom() {
 }
 
 function setDormType(房型: '单人' | '双人' | '四人' | '八人') {
-  const 带路人数 =
-    房型 === '单人' ? 0 : 房型 === '双人' ? 1 : 房型 === '四人' ? 3 : 7;
   patch({
-    宿舍: { ...draft.value.宿舍, 房型, 带路人数 },
-    室友选择: 房型 === '双人' ? draft.value.室友选择 : draft.value.室友选择,
+    宿舍: { ...draft.value.宿舍, 房型 },
+    室友选择: draft.value.室友选择,
   });
 }
 
@@ -370,19 +553,6 @@ function setHomeRoute(route: '社区学院' | '工作') {
     主线: '家里线',
     家里线子路线: route,
     开局描述: route === '工作' ? DEFAULT_HOME_WORK : DEFAULT_HOME_COLLEGE,
-  });
-}
-
-function onTraits(e: Event) {
-  const v = (e.target as HTMLInputElement).value;
-  patch({
-    自定义室友: {
-      ...draft.value.自定义室友,
-      性格: v
-        .split(/[、,，]/)
-        .map(s => s.trim())
-        .filter(Boolean),
-    },
   });
 }
 
@@ -684,6 +854,39 @@ function submit() {
   gap: 6px;
 }
 
+.split-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+@media (max-width: 480px) {
+  .split-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.hint-line {
+  font-family: var(--font-hand);
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+.friend-card {
+  padding: 8px;
+  margin-top: 4px;
+  background: rgba(239, 226, 198, 0.35);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.friend-title {
+  font-family: var(--font-hand);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.field.compact {
+  margin-bottom: 0;
+}
 .custom-roomie {
   display: flex;
   flex-direction: column;
@@ -694,6 +897,16 @@ function submit() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+}
+.custom-roomie .mini {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.custom-roomie .mini > span {
+  font-family: var(--font-hand);
+  font-size: 12px;
+  font-weight: 700;
 }
 .ym-line-input.short {
   width: 72px;
