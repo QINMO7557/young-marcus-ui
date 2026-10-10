@@ -10,7 +10,7 @@ declare global {
 }
 
 const CDN_DEFAULT =
-  'https://testingcf.jsdelivr.net/gh/QINMO7557/young-marcus-ui@v1.0.2/dist/YoungMarcus/界面/assets';
+  'https://testingcf.jsdelivr.net/gh/QINMO7557/young-marcus-ui@v1.0.4/dist/YoungMarcus/界面/assets';
 
 export function getAssetBase(): string {
   if (typeof window !== 'undefined' && window.__YM_ASSET_BASE__) {
