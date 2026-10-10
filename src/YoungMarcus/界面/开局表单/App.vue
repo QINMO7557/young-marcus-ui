@@ -68,7 +68,7 @@ const rawRoomie = store.data.日程.自定义室友 || ({} as any);
 const story = ref<StoryDraft>({
   主线: store.data.世界.主线 || '大学线',
   家里线子路线: store.data.世界.家里线子路线 || '无',
-  专业: store.data.世界.专业 || store.data.主角.专业 || '未定专业',
+  专业: (() => { const m = store.data.世界.专业 || store.data.主角.专业 || '未定专业'; return m === '未定通识' ? '未定专业' : m; })(),
   开局描述: store.data.世界.开局描述摘要 || '',
   室友选择: store.data.日程.室友选择 || 'Christian',
   自定义室友: {

@@ -83,10 +83,17 @@
           <p class="meta">· 大城市 · 大学城</p>
           <label class="field">
             <span>专业</span>
-            <input v-model="draft.专业" class="ym-line-input" type="text" list="majors" placeholder="下拉可选，也可自填" />
-            <datalist id="majors">
-              <option v-for="m in majors" :key="m" :value="m" />
-            </datalist>
+            <select class="ym-line-input" :value="majorSelect" @change="onMajorSelect">
+              <option v-for="m in majors" :key="m" :value="m">{{ m }}</option>
+              <option value="__custom__">其他（自填）</option>
+            </select>
+            <input
+              v-if="majorSelect === '__custom__'"
+              v-model="draft.专业"
+              class="ym-line-input"
+              type="text"
+              placeholder="填写专业"
+            />
           </label>
 
           <div class="field">
@@ -107,16 +114,17 @@
 
           <label class="field">
             <span>寝室类型</span>
+            <select class="ym-line-input" :value="dormKindSelect" @change="onDormKindSelect">
+              <option v-for="k in dormKinds" :key="k" :value="k">{{ k }}</option>
+              <option value="__custom__">其他（自填）</option>
+            </select>
             <input
+              v-if="dormKindSelect === '__custom__'"
               v-model="draft.宿舍.寝室类型"
               class="ym-line-input"
               type="text"
-              list="dorm-kinds"
-              placeholder="混合 / 学科·某某系"
+              placeholder="如：学科·某某系"
             />
-            <datalist id="dorm-kinds">
-              <option v-for="k in dormKinds" :key="k" :value="k" />
-            </datalist>
           </label>
 
           <label class="field">
@@ -257,9 +265,49 @@ const thumbUrl = computed(() =>
 );
 
 const roommates = ['Christian', 'Marky', '自定义'] as const;
-const majors = ['历史', '文学', '商科', '计算机', '传媒', '体育管理', '艺术', '心理学', '未定专业'];
+const majors = [
+  '未定专业',
+  '商科',
+  '计算机',
+  '工程',
+  '理学',
+  '人文',
+  '社科',
+  '传媒',
+  '艺术',
+  '教育',
+  '体育',
+  '医学预科',
+];
 const dormTypes = ['单人', '双人', '四人', '八人'] as const;
-const dormKinds = ['混合', '学科·历史系', '学科·商学院', '学科·计算机', '学科·体育', '学科·艺术'];
+const dormKinds = [
+  '混合',
+  '学科·商科',
+  '学科·计算机',
+  '学科·工程',
+  '学科·理学',
+  '学科·人文',
+  '学科·社科',
+  '学科·传媒',
+  '学科·艺术',
+  '学科·体育',
+];
+const majorSelect = computed(() => (majors.includes(draft.value.专业) ? draft.value.专业 : '__custom__'));
+const dormKindSelect = computed(() =>
+  dormKinds.includes(draft.value.宿舍.寝室类型) ? draft.value.宿舍.寝室类型 : '__custom__',
+);
+function onMajorSelect(e: Event) {
+  const v = (e.target as HTMLSelectElement).value;
+  if (v === '__custom__') patch({ 专业: draft.value.专业 && !majors.includes(draft.value.专业) ? draft.value.专业 : '' });
+  else patch({ 专业: v });
+}
+function onDormKindSelect(e: Event) {
+  const v = (e.target as HTMLSelectElement).value;
+  if (v === '__custom__') {
+    const cur = draft.value.宿舍.寝室类型;
+    patch({ 宿舍: { ...draft.value.宿舍, 寝室类型: dormKinds.includes(cur) ? '' : cur } });
+  } else patch({ 宿舍: { ...draft.value.宿舍, 寝室类型: v } });
+}
 const pools = {
   年级: ['大一同届', '大二学长', '大三学长', '交换生'],
   身份: ['普通学生', '运动员', '社团干部', '艺术生', '理工宅', '兄弟会边缘'],
