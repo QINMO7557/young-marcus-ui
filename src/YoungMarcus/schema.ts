@@ -121,7 +121,7 @@ export const Schema = z.object({
         )
         .prefault({}),
       兼职岗位: z.string().prefault('无'),
-      室友选择: z.enum(['Christian', 'Marky', '自定义']).prefault('Christian'),
+      室友选择: z.enum(['Christian', 'Marky', '自定义', '无']).prefault('无'),
       自定义室友: z
         .object({
           年级: z.string().prefault(''),
@@ -170,7 +170,7 @@ export const Schema = z.object({
       课表: {},
       今日日程: {},
       兼职岗位: '无',
-      室友选择: 'Christian',
+      室友选择: '无',
       自定义室友: {
         年级: '',
         身份: '',

@@ -338,7 +338,7 @@ export type StoryDraft = {
   家里线子路线: '社区学院' | '工作' | '无';
   专业: string;
   开局描述: string;
-  室友选择: 'Christian' | 'Marky' | '自定义';
+  室友选择: 'Christian' | 'Marky' | '自定义' | '无';
   自定义室友: {
     年级: string;
     身份: string;
@@ -508,8 +508,22 @@ const DEFAULT_HOME_COLLEGE =
 const DEFAULT_HOME_WORK =
   '9 月 1 日清晨，搬到海鸥湾镇后的第一个工作日。爸爸匆匆准备去新公司报到，Milo 抢浴室去上课，厨房里还堆着没拆完的纸箱。你推迟了入学，这一年打算先打工——镇上店铺，或进城找工作甚至租房。隔壁的邻居刚好来敲门借牛奶。';
 
-const DEFAULT_UNI =
+const DEFAULT_UNI_DOUBLE =
   '开学周的报到日。你已选定专业，课表刚生成，并完成室友选择。爸爸和 Milo 开了 3 小时车把你送到霍大宿舍楼下，帮你把箱子搬上楼后告别。下周一第一节课，听说原来的教授出了车祸，换了个新来的代课老师。校园里也在招图书馆助理和家教兼职。';
+
+const DEFAULT_UNI_MULTI =
+  '开学周的报到日。你已选定专业，课表刚生成，宿舍是多人间开局（可配开局好友）。爸爸和 Milo 开了 3 小时车把你送到霍大宿舍楼下，帮你把箱子搬上楼后告别。下周一第一节课，听说原来的教授出了车祸，换了个新来的代课老师。校园里也在招图书馆助理和家教兼职。';
+
+const DEFAULT_UNI_SINGLE =
+  '开学周的报到日。你已选定专业，课表刚生成，宿舍是单人间。爸爸和 Milo 开了 3 小时车把你送到霍大宿舍楼下，帮你把箱子搬上楼后告别。下周一第一节课，听说原来的教授出了车祸，换了个新来的代课老师。校园里也在招图书馆助理和家教兼职。';
+
+function defaultUniText(房型: '单人' | '双人' | '四人' | '八人') {
+  if (房型 === '双人') return DEFAULT_UNI_DOUBLE;
+  if (房型 === '单人') return DEFAULT_UNI_SINGLE;
+  return DEFAULT_UNI_MULTI;
+}
+
+const UNI_DEFAULTS = [DEFAULT_UNI_DOUBLE, DEFAULT_UNI_MULTI, DEFAULT_UNI_SINGLE];
 
 function patch(partial: Partial<StoryDraft>) {
   emit('update:modelValue', { ...draft.value, ...partial });
@@ -529,7 +543,7 @@ function selectUni() {
     主线: '大学线',
     家里线子路线: '无',
     专业: draft.value.专业 || '未定专业',
-    开局描述: DEFAULT_UNI,
+    开局描述: defaultUniText(draft.value.宿舍.房型 || '双人'),
   });
 }
 
@@ -542,10 +556,35 @@ function selectCustom() {
 }
 
 function setDormType(房型: '单人' | '双人' | '四人' | '八人') {
-  patch({
+  const emptyRoomie = {
+    年级: '',
+    身份: '',
+    体型: '',
+    气质: '',
+    取向: '',
+    性格: [] as string[],
+    社团: '',
+    外貌关键词: '',
+    一句话: '',
+  };
+  let 室友选择 = draft.value.室友选择;
+  if (房型 === '双人') {
+    if (!室友选择 || 室友选择 === '无') 室友选择 = 'Christian';
+  } else {
+    室友选择 = '无';
+  }
+  const next: Partial<StoryDraft> = {
     宿舍: { ...draft.value.宿舍, 房型 },
-    室友选择: draft.value.室友选择,
-  });
+    室友选择,
+  };
+  if (房型 !== '双人') {
+    next.自定义室友 = { ...emptyRoomie };
+  }
+  // 若开局描述仍是自动模板，随房型切换文案
+  if (UNI_DEFAULTS.includes(draft.value.开局描述)) {
+    next.开局描述 = defaultUniText(房型);
+  }
+  patch(next);
 }
 
 function setHomeRoute(route: '社区学院' | '工作') {
@@ -586,7 +625,7 @@ const canSubmit = computed(() => {
   if (draft.value.主线 === '家里线') return draft.value.家里线子路线 !== '无';
   if (draft.value.主线 === '大学线') {
     if (!draft.value.专业.trim()) return false;
-    if (draft.value.宿舍.房型 === '双人' && !draft.value.室友选择) return false;
+    if (draft.value.宿舍.房型 === '双人' && (!draft.value.室友选择 || draft.value.室友选择 === '无')) return false;
     return true;
   }
   return draft.value.主线 === '自定义';

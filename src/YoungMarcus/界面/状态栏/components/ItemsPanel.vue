@@ -42,8 +42,10 @@ const contacts = computed(() => {
     .map(([name, v]) => ({ name, ...v }))
     .filter(p => {
       if (p.name === 'Christian' || p.name === 'Marky') {
-        if (dormType !== '双人') return false;
-        return roomie === p.name;
+        return dormType === '双人' && roomie === p.name;
+      }
+      if (p.name === '室友') {
+        return dormType === '双人' && roomie === '自定义';
       }
       return true;
     });

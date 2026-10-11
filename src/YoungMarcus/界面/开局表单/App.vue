@@ -70,7 +70,12 @@ const story = ref<StoryDraft>({
   家里线子路线: store.data.世界.家里线子路线 || '无',
   专业: (() => { const m = store.data.世界.专业 || store.data.主角.专业 || '未定专业'; return m === '未定通识' ? '未定专业' : m; })(),
   开局描述: store.data.世界.开局描述摘要 || '',
-  室友选择: store.data.日程.室友选择 || 'Christian',
+  室友选择: (() => {
+    const dorm = store.data.日程.宿舍?.房型 || '双人';
+    const v = store.data.日程.室友选择;
+    if (dorm !== '双人') return '无';
+    return v && v !== '无' ? v : 'Christian';
+  })() as StoryDraft['室友选择'],
   自定义室友: {
     ...emptyRoomie,
     ...rawRoomie,
@@ -174,14 +179,15 @@ async function onSubmit() {
         store.data.日程.自定义室友 =
           s.室友选择 === '自定义' ? { ...s.自定义室友 } : { ...emptyRoomie };
       } else {
-        store.data.日程.室友选择 = 'Christian';
+        store.data.日程.室友选择 = '无';
         store.data.日程.自定义室友 = { ...emptyRoomie };
       }
-      // 重要人物只保留所选室友，不塞双份
+      // 重要人物只保留所选室友，不塞双份；非双人不写 Christian/Marky/室友
       const people = store.data.重要人物 || {};
       delete people.Christian;
       delete people.Marky;
       delete people['自定义室友'];
+      delete people['室友'];
       if (s.宿舍.房型 === '双人') {
         if (s.室友选择 === 'Christian') {
           people.Christian = {

@@ -128,8 +128,10 @@ const people = computed(() => {
   const entries = Object.entries(store.data.重要人物 || {}).map(([name, v]) => ({ name, ...v })) as Person[];
   return entries.filter(p => {
     if (p.name === 'Christian' || p.name === 'Marky') {
-      if (dormType !== '双人') return false;
-      return roomie === p.name;
+      return dormType === '双人' && roomie === p.name;
+    }
+    if (p.name === '室友') {
+      return dormType === '双人' && roomie === '自定义';
     }
     return true;
   });
